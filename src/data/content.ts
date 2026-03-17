@@ -52,28 +52,28 @@ export const solutionCards: SolutionCard[] = [
     title: 'Proteção de cultivos',
     description:
       'Mais precisão no manejo para enfrentar pressão biótica e variabilidade de cenário.',
-    image: 'images/hero-sequence/frame_154_delay-0.041s.webp',
+    image: 'images/solucoes-conectadas/1protecao.jpg',
   },
   {
     title: 'Sementes e performance genética',
     description: 'Potencial produtivo começa na escolha certa.',
-    image: 'images/hero-sequence/frame_132_delay-0.041s.webp',
+    image: 'images/solucoes-conectadas/2sementes.jpg',
   },
   {
     title: 'Syngenta Digital',
     description: 'Dados, previsibilidade e decisão com mais inteligência.',
-    image: 'images/hero-sequence/frame_160_delay-0.041s.webp',
+    image: 'images/solucoes-conectadas/3agrotech.webp',
   },
   {
     title: 'Agricultura regenerativa',
     description:
       'Produtividade com visão de longo prazo sobre solo, biodiversidade e eficiência.',
-    image: 'images/hero-sequence/frame_096_delay-0.041s.webp',
+    image: 'images/solucoes-conectadas/4regenerativa.jpg',
   },
   {
     title: 'Portfólio integrado',
     description: 'Soluções conectadas para desafios reais do produtor.',
-    image: 'images/hero-sequence/frame_178_delay-0.041s.webp',
+    image: 'images/solucoes-conectadas/5portfolio.jpg',
   },
 ];
 

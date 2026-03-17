@@ -9,6 +9,7 @@ import { assetUrl } from '../utils';
 
 export function SolutionsHorizontalSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const cursorRef = useRef<HTMLDivElement | null>(null);
 
@@ -16,18 +17,18 @@ export function SolutionsHorizontalSection() {
   const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
-    if (isMobile || reducedMotion || !sectionRef.current || !trackRef.current) return;
+    if (isMobile || reducedMotion || !sectionRef.current || !trackRef.current || !viewportRef.current) return;
 
     const context = gsap.context(() => {
-      const distance = Math.max(trackRef.current!.scrollWidth - window.innerWidth, 0);
+      const distance = Math.max(trackRef.current!.scrollWidth - viewportRef.current!.clientWidth, 0);
 
       gsap.to(trackRef.current, {
         x: -distance,
         ease: 'none',
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top top',
-          end: () => `+=${distance + window.innerHeight * 0.75}`,
+          start: 'top+=200 top',
+          end: () => `+=${distance + window.innerHeight * 0.45}`,
           scrub: 0.85,
           pin: true,
           anticipatePin: 1,
@@ -130,12 +131,13 @@ export function SolutionsHorizontalSection() {
             </span>
           </div>
 
-          <div ref={trackRef} className="flex items-stretch gap-8 pl-6 pr-[18vw] md:pl-10 md:pr-[16vw]">
-            {solutionCards.map((card, index) => (
+          <div ref={viewportRef} className="overflow-hidden px-6 md:px-10">
+            <div ref={trackRef} className="flex items-stretch gap-6">
+              {solutionCards.map((card) => (
               <article
                 key={card.title}
                 data-solution-card
-                className="relative h-[70vh] min-h-[520px] w-[min(74vw,860px)] flex-shrink-0 overflow-hidden rounded-[38px] border border-syngenta-deep/10 bg-syngenta-offwhite shadow-panel"
+                className="relative h-[68vh] min-h-[500px] w-[min(1100px,calc(100vw-120px))] flex-shrink-0 overflow-hidden rounded-[38px] border border-syngenta-deep/10 bg-syngenta-offwhite shadow-panel"
               >
                 <img
                   src={assetUrl(card.image)}
@@ -145,7 +147,6 @@ export function SolutionsHorizontalSection() {
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,34,64,0.05)_0%,rgba(10,34,64,0.75)_80%)]" />
                 <div className="absolute bottom-0 p-10 md:p-12">
-                  <p className="mb-4 text-xs uppercase tracking-[0.22em] text-syngenta-yellow">Painel {index + 1}</p>
                   <h3 className="font-heading text-3xl font-semibold leading-tight text-white md:text-4xl">
                     {card.title}
                   </h3>
@@ -153,6 +154,7 @@ export function SolutionsHorizontalSection() {
                 </div>
               </article>
             ))}
+            </div>
           </div>
         </div>
       )}
