@@ -5,6 +5,7 @@ import { CTAButton } from './CTAButton';
 import { heroStages } from '../data/content';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { lenisScrollTo } from '../hooks/useSmoothScroll';
 import { assetUrl } from '../utils';
 
 const TOTAL_FRAMES = 192;
@@ -49,11 +50,7 @@ function drawImageCover(canvas: HTMLCanvasElement, image: HTMLImageElement) {
 }
 
 function goToSection(sectionId: string) {
-  const target = document.getElementById(sectionId);
-
-  if (target) {
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  lenisScrollTo(`#${sectionId}`);
 }
 
 export function HeroSequenceSection() {

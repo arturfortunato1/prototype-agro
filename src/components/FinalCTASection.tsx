@@ -1,12 +1,9 @@
 import { CTAButton } from './CTAButton';
 import { assetUrl } from '../utils';
+import { lenisScrollTo } from '../hooks/useSmoothScroll';
 
 function goToSection(sectionId: string) {
-  const target = document.getElementById(sectionId);
-
-  if (target) {
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  lenisScrollTo(`#${sectionId}`);
 }
 
 export function FinalCTASection() {

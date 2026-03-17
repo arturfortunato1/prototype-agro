@@ -8,7 +8,7 @@
   color: #0a2240;
   background: #f5f7f4;
   font-family: 'IBM Plex Sans', system-ui, sans-serif;
-  scroll-behavior: smooth;
+  /* scroll-behavior now handled by Lenis smooth scroll */
 }
 
 * {
@@ -42,6 +42,32 @@ a {
 
 [data-animate='reveal'] {
   will-change: transform, opacity;
+}
+
+/* ── Lenis smooth scroll ── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ── Hide default cursor when custom cursor is active ── */
+@media (pointer: fine) {
+  html.has-custom-cursor,
+  html.has-custom-cursor * {
+    cursor: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -13,11 +13,28 @@ import { ImpactSection } from './components/ImpactSection';
 import { CredibilitySection } from './components/CredibilitySection';
 import { FinalCTASection } from './components/FinalCTASection';
 import { Footer } from './components/Footer';
+import { CustomCursor } from './components/CustomCursor';
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
+import { useSmoothScroll } from './hooks/useSmoothScroll';
 
 function App() {
   const reducedMotion = usePrefersReducedMotion();
 
+  // ── Lenis smooth scroll (disabled when user prefers reduced motion) ──
+  useSmoothScroll(!reducedMotion);
+
+  // ── Enable custom cursor class on html ──
+  useEffect(() => {
+    const isFinePointer = window.matchMedia('(pointer: fine)').matches;
+    if (isFinePointer && !reducedMotion) {
+      document.documentElement.classList.add('has-custom-cursor');
+    }
+    return () => {
+      document.documentElement.classList.remove('has-custom-cursor');
+    };
+  }, [reducedMotion]);
+
+  // ── Scroll depth analytics tracking ──
   useEffect(() => {
     const thresholds = [25, 50, 75, 100];
     const tracked = new Set<number>();
@@ -34,7 +51,6 @@ function App() {
         if (progress >= threshold && !tracked.has(threshold)) {
           tracked.add(threshold);
 
-          // Placeholder hook for future analytics integration.
           window.dispatchEvent(
             new CustomEvent('prototype-agro:scroll-depth', {
               detail: { depth: threshold },
@@ -49,6 +65,7 @@ function App() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // ── Global reveal animation for [data-animate="reveal"] elements ──
   useEffect(() => {
     if (reducedMotion) return;
 
@@ -76,6 +93,7 @@ function App() {
 
   return (
     <>
+      {!reducedMotion && <CustomCursor />}
       <Header />
       <main>
         <HeroSequenceSection />

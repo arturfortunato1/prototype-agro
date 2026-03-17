@@ -3,15 +3,12 @@ import { useEffect, useState } from 'react';
 import { CTAButton } from './CTAButton';
 import { navLinks } from '../data/content';
 import { assetUrl } from '../utils';
+import { lenisScrollTo } from '../hooks/useSmoothScroll';
 
 const LOGO_SRC = assetUrl('images/logo/Logo-novo.png');
 
 function goToSection(sectionId: string) {
-  const section = document.getElementById(sectionId);
-
-  if (section) {
-    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  lenisScrollTo(`#${sectionId}`);
 }
 
 function LinkItem({

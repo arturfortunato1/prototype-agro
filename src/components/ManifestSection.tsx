@@ -42,6 +42,19 @@ export function ManifestSection() {
           start: 'top 72%',
         },
       });
+
+      // Parallax depth on image — creates a sense of 3D depth as user scrolls
+      gsap.to('[data-manifest-image] img', {
+        yPercent: -12,
+        scale: 1.08,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
     }, sectionRef);
 
     return () => context.revert();

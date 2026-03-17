@@ -38,6 +38,19 @@ export function RegenerativeSection() {
         });
       }
 
+      // Parallax depth on image
+      gsap.to('[data-regenerative-image] img', {
+        yPercent: -10,
+        scale: 1.06,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+
       gsap.to({}, {
         scrollTrigger: {
           trigger: sectionRef.current,

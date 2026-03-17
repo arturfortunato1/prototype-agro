@@ -1,11 +1,23 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
+import { useMagnetic } from '../hooks/useMagnetic';
+
 type CTAButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'ghost';
+  /** Disable magnetic hover effect */
+  noMagnetic?: boolean;
   children: ReactNode;
 };
 
-export function CTAButton({ variant = 'primary', children, className = '', ...props }: CTAButtonProps) {
+export function CTAButton({
+  variant = 'primary',
+  noMagnetic = false,
+  children,
+  className = '',
+  ...props
+}: CTAButtonProps) {
+  const magneticRef = useMagnetic<HTMLButtonElement>(noMagnetic ? 0 : 0.3);
+
   const baseClassName =
     'inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold tracking-wide transition duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-syngenta-yellow';
 
@@ -19,7 +31,11 @@ export function CTAButton({ variant = 'primary', children, className = '', ...pr
   };
 
   return (
-    <button className={`${baseClassName} ${variantClassName[variant]} ${className}`.trim()} {...props}>
+    <button
+      ref={magneticRef}
+      className={`${baseClassName} ${variantClassName[variant]} ${className}`.trim()}
+      {...props}
+    >
       {children}
     </button>
   );
