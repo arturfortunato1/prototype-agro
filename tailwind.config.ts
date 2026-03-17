@@ -31,9 +31,19 @@ export default {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-8px)' },
         },
+        'float-slow': {
+          '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+          '50%': { transform: 'translateY(-12px) rotate(3deg)' },
+        },
+        'pulse-soft': {
+          '0%, 100%': { opacity: '0.12' },
+          '50%': { opacity: '0.22' },
+        },
       },
       animation: {
         float: 'float 7s ease-in-out infinite',
+        'float-slow': 'float-slow 11s ease-in-out infinite',
+        'pulse-soft': 'pulse-soft 5s ease-in-out infinite',
       },
     },
   },

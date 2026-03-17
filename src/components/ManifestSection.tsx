@@ -55,14 +55,55 @@ export function ManifestSection() {
           scrub: true,
         },
       });
+
+      // Floating decorative elements — parallax at different speeds for depth
+      gsap.utils.toArray<HTMLElement>('[data-manifest-float]').forEach((el) => {
+        const speed = parseFloat(el.dataset.manifestFloat || '1');
+        gsap.to(el, {
+          yPercent: -60 * speed,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        });
+      });
     }, sectionRef);
 
     return () => context.revert();
   }, [reducedMotion]);
 
   return (
-    <section id="manifesto" ref={sectionRef} className="bg-syngenta-offwhite py-24 md:py-28">
-      <div className="mx-auto grid w-full max-w-[1320px] gap-14 px-6 md:px-10 lg:grid-cols-[1.12fr_0.88fr] lg:items-center">
+    <section id="manifesto" ref={sectionRef} className="relative bg-syngenta-offwhite py-24 md:py-28 overflow-hidden">
+      {/* ── Floating decorative elements ── */}
+      {/* Top-left — large green ring */}
+      <div
+        data-manifest-float="0.6"
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-6 top-16 h-[80px] w-[80px] rounded-full border-2 border-[#78be20] opacity-[0.1]"
+      />
+      {/* Right mid — small blue filled dot */}
+      <div
+        data-manifest-float="1.2"
+        aria-hidden="true"
+        className="pointer-events-none absolute right-10 top-[38%] h-[28px] w-[28px] rounded-full bg-[#0057b8] opacity-[0.08]"
+      />
+      {/* Bottom-left — medium blue ring */}
+      <div
+        data-manifest-float="0.9"
+        aria-hidden="true"
+        className="pointer-events-none absolute left-[12%] bottom-20 h-[52px] w-[52px] rounded-full border-[1.5px] border-[#0057b8] opacity-[0.12]"
+      />
+      {/* Top-right — small green filled dot */}
+      <div
+        data-manifest-float="1.5"
+        aria-hidden="true"
+        className="pointer-events-none absolute right-[18%] top-10 h-[24px] w-[24px] rounded-full bg-[#78be20] opacity-[0.1]"
+      />
+
+      <div className="relative mx-auto grid w-full max-w-[1320px] gap-14 px-6 md:px-10 lg:grid-cols-[1.12fr_0.88fr] lg:items-center">
         <div>
           <SectionHeading
             eyebrow="Visão integrada"
@@ -82,6 +123,16 @@ export function ManifestSection() {
             ))}
           </div>
         </div>
+
+        {/* ── Subtle gradient divider (desktop only) ── */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-[15%] hidden h-[70%] w-px -translate-x-1/2 lg:block"
+          style={{
+            background: 'linear-gradient(to bottom, transparent, #0057b8 30%, #78be20 70%, transparent)',
+            opacity: 0.18,
+          }}
+        />
 
         <figure
           data-manifest-image

@@ -1,4 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { SectionHeading } from './SectionHeading';
 import {
@@ -7,6 +9,9 @@ import {
   type PortfolioCategory,
   type PortfolioItem,
 } from '../data/content';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+
+gsap.registerPlugin(ScrollTrigger);
 
 function cardAccent(category: PortfolioItem['category']) {
   const accents: Record<PortfolioItem['category'], string> = {
@@ -22,6 +27,9 @@ function cardAccent(category: PortfolioItem['category']) {
 
 export function PortfolioSection() {
   const [selectedCategory, setSelectedCategory] = useState<PortfolioCategory>('Todos');
+  const gridRef = useRef<HTMLDivElement>(null);
+  const hasAnimatedEntrance = useRef(false);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const visibleItems = useMemo(
     () =>
@@ -30,6 +38,74 @@ export function PortfolioSection() {
         : portfolioItems.filter((item) => item.category === selectedCategory),
     [selectedCategory],
   );
+
+  /* ── Scroll-triggered stagger entrance ── */
+  useEffect(() => {
+    if (prefersReducedMotion || !gridRef.current || hasAnimatedEntrance.current) return;
+
+    const cards = gridRef.current.querySelectorAll('[data-portfolio-card]');
+    if (!cards.length) return;
+
+    // Set initial hidden state
+    gsap.set(cards, { y: 60, opacity: 0, scale: 0.92 });
+
+    const ctx = gsap.context(() => {
+      gsap.to(cards, {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 0.7,
+        ease: 'power3.out',
+        stagger: {
+          each: 0.09,
+          from: 'start',
+        },
+        scrollTrigger: {
+          trigger: gridRef.current,
+          start: 'top 82%',
+          once: true,
+        },
+        onComplete: () => {
+          hasAnimatedEntrance.current = true;
+        },
+      });
+    }, gridRef);
+
+    return () => ctx.revert();
+  }, [prefersReducedMotion]);
+
+  /* ── Animated filter transitions ── */
+  useLayoutEffect(() => {
+    if (!gridRef.current || !hasAnimatedEntrance.current) return;
+    if (prefersReducedMotion) return;
+
+    const cards = gridRef.current.querySelectorAll('[data-portfolio-card]');
+    if (!cards.length) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        cards,
+        {
+          y: 28,
+          opacity: 0,
+          scale: 0.94,
+        },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.5,
+          ease: 'power2.out',
+          stagger: {
+            each: 0.06,
+            from: 'start',
+          },
+        },
+      );
+    }, gridRef);
+
+    return () => ctx.revert();
+  }, [selectedCategory, prefersReducedMotion]);
 
   return (
     <section id="portfolio" className="bg-syngenta-offwhite py-24 md:py-32">
@@ -61,11 +137,15 @@ export function PortfolioSection() {
           })}
         </div>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div
+          ref={gridRef}
+          className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+        >
           {visibleItems.map((item) => (
             <article
               key={item.title}
-              className="group rounded-3xl border border-syngenta-deep/10 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-syngenta-blue/30 hover:shadow-soft"
+              data-portfolio-card
+              className="group rounded-3xl border border-syngenta-deep/10 bg-white p-6 transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:border-syngenta-blue/30 hover:shadow-panel"
             >
               <span
                 className={`mb-6 block h-1 w-full rounded-full bg-gradient-to-r ${cardAccent(item.category)}`}

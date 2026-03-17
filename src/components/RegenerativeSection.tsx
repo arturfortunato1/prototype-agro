@@ -113,10 +113,10 @@ export function RegenerativeSection() {
               return (
                 <article
                   key={pillar}
-                  className={`rounded-2xl border px-4 py-5 transition-all duration-300 ${
+                  className={`rounded-2xl border px-4 py-5 transition-all duration-500 ${
                     active
-                      ? 'border-syngenta-blue/30 bg-white text-syngenta-deep shadow-[0_10px_20px_rgba(7,24,44,0.1)]'
-                      : 'border-syngenta-deep/10 bg-white/60 text-syngenta-deep/70'
+                      ? 'border-syngenta-blue/30 bg-white text-syngenta-deep shadow-[0_10px_20px_rgba(7,24,44,0.1)] -translate-y-1'
+                      : 'border-syngenta-deep/10 bg-white/60 text-syngenta-deep/70 hover:border-syngenta-deep/20 hover:bg-white/80'
                   }`}
                 >
                   <p className="text-xs uppercase tracking-[0.18em] text-syngenta-blue/65">Pilar {index + 1}</p>

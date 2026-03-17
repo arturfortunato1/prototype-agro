@@ -44,6 +44,66 @@ a {
   will-change: transform, opacity;
 }
 
+/* ── Global film grain overlay for premium feel ── */
+#root::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ── Smooth section transitions ── */
+[data-section-blend]::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 160px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-section-blend="white-to-dark"]::before {
+  background: linear-gradient(to bottom, #ffffff 0%, transparent 100%);
+}
+
+[data-section-blend="dark-to-light"]::before {
+  background: linear-gradient(to bottom, #031a35 0%, transparent 100%);
+}
+
+[data-section-blend="offwhite-to-dark"]::before {
+  background: linear-gradient(to bottom, #eef4f9 0%, transparent 100%);
+}
+
+/* Section bottom blends */
+[data-section-blend-bottom]::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 160px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-section-blend-bottom="dark-to-white"]::after {
+  background: linear-gradient(to top, #ffffff 0%, transparent 100%);
+}
+
+[data-section-blend-bottom="dark-to-offwhite"]::after {
+  background: linear-gradient(to top, #f5f7f4 0%, transparent 100%);
+}
+
+[data-section-blend-bottom="dark-to-eef"]::after {
+  background: linear-gradient(to top, #eef4f9 0%, transparent 100%);
+}
+
 /* ── Lenis smooth scroll ── */
 html.lenis,
 html.lenis body {
@@ -60,14 +120,6 @@ html.lenis body {
 
 .lenis.lenis-stopped {
   overflow: hidden;
-}
-
-/* ── Hide default cursor when custom cursor is active ── */
-@media (pointer: fine) {
-  html.has-custom-cursor,
-  html.has-custom-cursor * {
-    cursor: none !important;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

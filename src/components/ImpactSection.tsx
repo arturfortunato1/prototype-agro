@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { gsap } from 'gsap';
 
 import { SectionHeading } from './SectionHeading';
 import { impactMetrics } from '../data/content';
@@ -20,6 +21,46 @@ export function ImpactSection() {
   const [isVisible, setIsVisible] = useState(false);
   const [animatedValues, setAnimatedValues] = useState<number[]>(() => impactMetrics.map(() => 0));
   const reducedMotion = usePrefersReducedMotion();
+
+  // Parallax background
+  useEffect(() => {
+    if (reducedMotion || !sectionRef.current) return;
+
+    const context = gsap.context(() => {
+      gsap.to('[data-impact-bg]', {
+        yPercent: -14,
+        scale: 1.1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+
+      // Stagger cards in with scale
+      gsap.fromTo(
+        '[data-impact-card]',
+        { y: 40, opacity: 0, scale: 0.92 },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 65%',
+            toggleActions: 'play none none reverse',
+          },
+        },
+      );
+    }, sectionRef);
+
+    return () => context.revert();
+  }, [reducedMotion]);
 
   useEffect(() => {
     if (!sectionRef.current) return;
@@ -75,16 +116,17 @@ export function ImpactSection() {
   );
 
   return (
-    <section id="impacto" ref={sectionRef} className="relative overflow-hidden bg-syngenta-deep py-24 text-white md:py-32">
+    <section id="impacto" ref={sectionRef} data-section-blend="offwhite-to-dark" data-section-blend-bottom="dark-to-white" className="relative overflow-hidden bg-syngenta-deep py-24 text-white md:py-32">
       <img
+        data-impact-bg
         src={assetUrl('images/hero-sequence/frame_188_delay-0.041s.webp')}
         alt="Textura desfocada de campo"
-        className="absolute inset-0 h-full w-full object-cover opacity-[0.18]"
+        className="absolute inset-0 h-[120%] w-full object-cover opacity-[0.18]"
         loading="lazy"
       />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,20,40,0.92),rgba(8,20,40,0.86))]" />
 
-      <div className="relative mx-auto w-full max-w-[1400px] px-6 md:px-10">
+      <div className="relative z-[2] mx-auto w-full max-w-[1400px] px-6 md:px-10">
         <SectionHeading
           title="Escala, ciência e presença no campo."
           titleClassName="text-white"
@@ -95,8 +137,8 @@ export function ImpactSection() {
           {metrics.map((metric) => (
             <article
               key={metric.label}
-              className="rounded-3xl border border-white/15 bg-white/[0.04] p-6 backdrop-blur-sm"
-              data-animate="reveal"
+              className="rounded-3xl border border-white/15 bg-white/[0.04] p-6 backdrop-blur-sm transition-all duration-500 hover:border-white/25 hover:bg-white/[0.08] hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
+              data-impact-card
             >
               <p className="font-heading text-4xl font-semibold tracking-tight text-white md:text-5xl">
                 {metric.displayValue}

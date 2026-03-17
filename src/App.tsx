@@ -13,7 +13,6 @@ import { ImpactSection } from './components/ImpactSection';
 import { CredibilitySection } from './components/CredibilitySection';
 import { FinalCTASection } from './components/FinalCTASection';
 import { Footer } from './components/Footer';
-import { CustomCursor } from './components/CustomCursor';
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
 import { useSmoothScroll } from './hooks/useSmoothScroll';
 
@@ -23,16 +22,6 @@ function App() {
   // ── Lenis smooth scroll (disabled when user prefers reduced motion) ──
   useSmoothScroll(!reducedMotion);
 
-  // ── Enable custom cursor class on html ──
-  useEffect(() => {
-    const isFinePointer = window.matchMedia('(pointer: fine)').matches;
-    if (isFinePointer && !reducedMotion) {
-      document.documentElement.classList.add('has-custom-cursor');
-    }
-    return () => {
-      document.documentElement.classList.remove('has-custom-cursor');
-    };
-  }, [reducedMotion]);
 
   // ── Scroll depth analytics tracking ──
   useEffect(() => {
@@ -65,11 +54,12 @@ function App() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // ── Global reveal animation for [data-animate="reveal"] elements ──
+  // ── Global reveal animation system ──
   useEffect(() => {
     if (reducedMotion) return;
 
     const context = gsap.context(() => {
+      // Standard reveal — fade up
       gsap.utils.toArray<HTMLElement>('[data-animate="reveal"]').forEach((element) => {
         if (element.dataset.animated === 'true') return;
 
@@ -86,6 +76,63 @@ function App() {
 
         element.dataset.animated = 'true';
       });
+
+      // Scale reveal — fade up with scale
+      gsap.utils.toArray<HTMLElement>('[data-animate="scale"]').forEach((element) => {
+        if (element.dataset.animated === 'true') return;
+
+        gsap.from(element, {
+          y: 40,
+          opacity: 0,
+          scale: 0.92,
+          duration: 1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: element,
+            start: 'top 84%',
+          },
+        });
+
+        element.dataset.animated = 'true';
+      });
+
+      // Slide-in from left
+      gsap.utils.toArray<HTMLElement>('[data-animate="slide-left"]').forEach((element) => {
+        if (element.dataset.animated === 'true') return;
+
+        gsap.from(element, {
+          x: -50,
+          opacity: 0,
+          duration: 1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: element,
+            start: 'top 82%',
+          },
+        });
+
+        element.dataset.animated = 'true';
+      });
+
+      // Stagger children reveal
+      gsap.utils.toArray<HTMLElement>('[data-animate="stagger"]').forEach((container) => {
+        if (container.dataset.animated === 'true') return;
+
+        const children = container.children;
+        gsap.from(children, {
+          y: 30,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.08,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: container,
+            start: 'top 82%',
+          },
+        });
+
+        container.dataset.animated = 'true';
+      });
     });
 
     return () => context.revert();
@@ -93,7 +140,6 @@ function App() {
 
   return (
     <>
-      {!reducedMotion && <CustomCursor />}
       <Header />
       <main>
         <HeroSequenceSection />

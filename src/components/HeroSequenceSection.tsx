@@ -11,6 +11,16 @@ import { assetUrl } from '../utils';
 const TOTAL_FRAMES = 192;
 const PIN_MULTIPLIER = 5.3;
 
+/** Evenly sample `count` frame indices from [0, total-1], always including first and last. */
+function sampleFrameIndices(total: number, count: number): number[] {
+  const clamped = Math.max(2, Math.min(count, total));
+  const indices: number[] = [];
+  for (let i = 0; i < clamped; i++) {
+    indices.push(Math.round((i / (clamped - 1)) * (total - 1)));
+  }
+  return indices;
+}
+
 type WindowWithIdle = Window & {
   requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
   cancelIdleCallback?: (id: number) => void;
@@ -66,21 +76,13 @@ export function HeroSequenceSection() {
   const isTablet = useMediaQuery('(max-width: 1100px)');
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const frameStep = isMobile ? 3 : isTablet ? 2 : 1;
+  // 60% density on desktop (~115 frames), proportionally fewer on tablet/mobile
+  const targetFrames = isMobile ? 40 : isTablet ? 65 : 115;
 
   const frameSources = useMemo(() => {
-    const sources: string[] = [];
-
-    for (let frame = 0; frame < TOTAL_FRAMES; frame += frameStep) {
-      sources.push(framePath(frame));
-    }
-
-    if (!sources.at(-1)?.includes('191')) {
-      sources.push(framePath(TOTAL_FRAMES - 1));
-    }
-
-    return sources;
-  }, [frameStep]);
+    const indices = sampleFrameIndices(TOTAL_FRAMES, targetFrames);
+    return indices.map((i) => framePath(i));
+  }, [targetFrames]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -93,7 +95,7 @@ export function HeroSequenceSection() {
 
     frameImagesRef.current = Array.from({ length: frameSources.length }, () => null);
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
 
     const setCanvasSize = () => {
       const width = window.innerWidth;
@@ -157,10 +159,14 @@ export function HeroSequenceSection() {
       }
     };
 
-    const initialBatch = Math.min(20, frameSources.length);
+    // Load first frame immediately with high priority, then batch the rest
+    const initialBatch = Math.min(12, frameSources.length);
 
-    Promise.all(Array.from({ length: initialBatch }, (_, index) => loadFrame(index))).then(() => {
+    // Eagerly load frame 0 first for instant display
+    loadFrame(0).then(() => {
       renderFrame(0);
+      // Then load remaining initial batch in parallel
+      Promise.all(Array.from({ length: initialBatch - 1 }, (_, i) => loadFrame(i + 1)));
     });
 
     let cancelled = false;

@@ -106,6 +106,8 @@ export function SoilToSystemSection() {
     <section
       id="solo-sistema"
       ref={sectionRef}
+      data-section-blend="white-to-dark"
+      data-section-blend-bottom="dark-to-eef"
       className="relative overflow-hidden bg-[#031a35] py-24 text-white md:py-32"
     >
       <img
