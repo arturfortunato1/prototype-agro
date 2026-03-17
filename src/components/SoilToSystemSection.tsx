@@ -7,20 +7,20 @@ import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import { assetUrl } from '../utils';
 
 const supportPoints = ['Mais contexto para decidir', 'Mais precisão para atuar', 'Mais consistência para produzir'];
+const featuredLayerNames = new Set(['solo', 'planta', 'clima', 'decisao']);
 
 const openPositions = [
-  { left: '2%', top: '9%', rotate: -1.8 },
-  { left: '56%', top: '18%', rotate: 1.2 },
-  { left: '6%', top: '34%', rotate: -0.9 },
-  { left: '58%', top: '50%', rotate: 1.05 },
-  { left: '10%', top: '66%', rotate: -1.15 },
-  { left: '55%', top: '80%', rotate: 0.95 },
+  { left: '4%', top: '10%', rotate: -1.6 },
+  { left: '58%', top: '30%', rotate: 1.1 },
+  { left: '8%', top: '52%', rotate: -1.1 },
+  { left: '56%', top: '74%', rotate: 0.95 },
 ];
 
 export function SoilToSystemSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const reducedMotion = usePrefersReducedMotion();
   const isMobile = useMediaQuery('(max-width: 1024px)');
+  const featuredLayers = ecosystemLayers.filter((layer) => featuredLayerNames.has(layer.name));
 
   useEffect(() => {
     if (!sectionRef.current || reducedMotion || isMobile) return;
@@ -123,7 +123,7 @@ export function SoilToSystemSection() {
 
           {!isMobile ? (
             <div className="hidden lg:block">
-              {ecosystemLayers.map((layer, index) => (
+              {featuredLayers.map((layer, index) => (
                 <article
                   key={layer.name}
                   data-ecosystem-layer
@@ -143,7 +143,7 @@ export function SoilToSystemSection() {
             </div>
           ) : (
             <div className="relative z-10 space-y-3 pt-[360px]">
-              {ecosystemLayers.map((layer) => (
+              {featuredLayers.map((layer) => (
                 <article
                   key={layer.name}
                   className="rounded-2xl border border-white/22 bg-white/[0.1] p-4 backdrop-blur"
@@ -165,25 +165,17 @@ export function SoilToSystemSection() {
             tecnologia certa conecta solo, planta, clima, dados e manejo com mais clareza.
           </p>
 
-          <div className="mt-10 grid gap-3">
+          <div className="mt-10 space-y-4 border-l border-white/25 pl-4">
             {supportPoints.map((point) => (
-              <article
-                key={point}
-                data-ecosystem-point
-                className="flex items-center gap-3 rounded-2xl border border-white/30 bg-white/[0.08] px-5 py-4 backdrop-blur-sm"
-              >
-                <span className="h-2.5 w-2.5 rounded-full bg-syngenta-yellow" aria-hidden="true" />
-                <p className="text-sm font-medium text-white/92">{point}</p>
-              </article>
+              <p key={point} data-ecosystem-point className="text-base font-medium text-white/90">
+                {point}
+              </p>
             ))}
           </div>
 
-          <div className="mt-8 rounded-2xl border border-white/24 bg-white/[0.07] p-5 backdrop-blur-sm">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-syngenta-yellow/90">Camada de decisão</p>
-            <p className="mt-3 text-sm leading-relaxed text-white/82">
-              Recomendação mais acionável quando os sinais do campo são lidos em conjunto, e não de forma isolada.
-            </p>
-          </div>
+          <p className="mt-8 max-w-xl text-sm leading-relaxed text-white/80">
+            Recomendação mais acionável quando os sinais do campo são lidos em conjunto, e não de forma isolada.
+          </p>
         </div>
       </div>
     </section>
