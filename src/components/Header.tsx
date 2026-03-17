@@ -14,15 +14,31 @@ function goToSection(sectionId: string) {
   }
 }
 
-function LinkItem({ id, label, onClick }: { id: string; label: string; onClick?: () => void }) {
+function LinkItem({
+  id,
+  label,
+  light,
+  onClick,
+}: {
+  id: string;
+  label: string;
+  light?: boolean;
+  onClick?: () => void;
+}) {
   return (
     <a
       href={`#${id}`}
       onClick={onClick}
-      className="group relative text-sm font-medium text-syngenta-deep transition-colors duration-300 hover:text-syngenta-blue"
+      className={`group relative text-sm font-medium transition-colors duration-300 ${
+        light ? 'text-white/92 hover:text-white' : 'text-syngenta-deep hover:text-syngenta-blue'
+      }`}
     >
       {label}
-      <span className="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-syngenta-blue transition-transform duration-300 group-hover:scale-x-100" />
+      <span
+        className={`absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 ${
+          light ? 'bg-white/75' : 'bg-syngenta-blue'
+        }`}
+      />
     </a>
   );
 }
@@ -56,7 +72,7 @@ export function Header() {
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
           isScrolled
             ? 'bg-white/86 py-3 shadow-[0_10px_40px_rgba(7,24,44,0.09)] backdrop-blur-xl'
-            : 'bg-transparent py-6'
+            : 'bg-gradient-to-b from-[#061b35]/62 via-[#061b35]/25 to-transparent py-5'
         }`}
       >
         <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between px-6 md:px-10">
@@ -64,19 +80,33 @@ export function Header() {
             <img
               src={LOGO_SRC}
               alt="Syngenta"
-              className={`w-auto transition-all duration-500 ${isScrolled ? 'h-8 md:h-9' : 'h-10 md:h-12'}`}
+              className={`w-auto transition-all duration-500 ${isScrolled ? 'h-8 md:h-9' : 'h-9 md:h-10'} ${
+                isScrolled ? '' : 'drop-shadow-[0_6px_18px_rgba(0,0,0,0.28)]'
+              }`}
             />
           </a>
 
           <nav className="hidden items-center gap-7 xl:flex" aria-label="Navegação principal">
-            {navLinks.slice(0, 5).map((link) => (
-              <LinkItem key={link.id} id={link.id} label={link.label} />
-            ))}
+            <div
+              className={`flex items-center gap-7 rounded-full px-6 py-2.5 transition-all duration-500 ${
+                isScrolled
+                  ? 'border border-syngenta-deep/10 bg-transparent'
+                  : 'border border-white/18 bg-[#071f3b]/34 backdrop-blur-md'
+              }`}
+            >
+              {navLinks.slice(0, 5).map((link) => (
+                <LinkItem key={link.id} id={link.id} label={link.label} light={!isScrolled} />
+              ))}
+            </div>
             <CTAButton
               variant="ghost"
               data-analytics-id="header_cta_fale_com_especialista"
               onClick={() => goToSection('contato')}
-              className="border-syngenta-blue/30 text-syngenta-blue hover:border-syngenta-blue"
+              className={
+                isScrolled
+                  ? 'border-syngenta-blue/30 text-syngenta-blue hover:border-syngenta-blue'
+                  : 'border-white/50 bg-white text-syngenta-deep hover:border-white hover:bg-white/95'
+              }
             >
               Fale com um especialista
             </CTAButton>

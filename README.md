@@ -1,4 +1,4 @@
-# Syngenta Brasil Landing Page (Protótipo)
+# Prototype Agro | Landing Page
 
 Landing page premium em React + TypeScript + Tailwind + GSAP, com narrativa scroll-driven e hero com sequência WEBP.
 

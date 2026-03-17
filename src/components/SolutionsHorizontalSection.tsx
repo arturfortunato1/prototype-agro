@@ -19,7 +19,7 @@ export function SolutionsHorizontalSection() {
     if (isMobile || reducedMotion || !sectionRef.current || !trackRef.current) return;
 
     const context = gsap.context(() => {
-      const distance = Math.max(trackRef.current!.scrollWidth - window.innerWidth + 120, 0);
+      const distance = Math.max(trackRef.current!.scrollWidth - window.innerWidth, 0);
 
       gsap.to(trackRef.current, {
         x: -distance,
@@ -27,7 +27,7 @@ export function SolutionsHorizontalSection() {
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
-          end: () => `+=${distance + window.innerHeight * 0.9}`,
+          end: () => `+=${distance + window.innerHeight * 0.75}`,
           scrub: 0.85,
           pin: true,
           anticipatePin: 1,
@@ -130,12 +130,12 @@ export function SolutionsHorizontalSection() {
             </span>
           </div>
 
-          <div ref={trackRef} className="flex gap-8 px-6 md:px-10">
+          <div ref={trackRef} className="flex items-stretch gap-8 pl-6 pr-[18vw] md:pl-10 md:pr-[16vw]">
             {solutionCards.map((card, index) => (
               <article
                 key={card.title}
                 data-solution-card
-                className="relative h-[70vh] min-h-[540px] w-[78vw] max-w-[920px] flex-shrink-0 overflow-hidden rounded-[38px] border border-syngenta-deep/10 bg-syngenta-offwhite shadow-panel"
+                className="relative h-[70vh] min-h-[520px] w-[min(74vw,860px)] flex-shrink-0 overflow-hidden rounded-[38px] border border-syngenta-deep/10 bg-syngenta-offwhite shadow-panel"
               >
                 <img
                   src={assetUrl(card.image)}
