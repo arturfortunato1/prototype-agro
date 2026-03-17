@@ -62,7 +62,7 @@ export function RegenerativeSection() {
             className="relative overflow-hidden rounded-[34px] border border-syngenta-deep/10 shadow-soft"
           >
             <img
-              src={assetUrl('images/hero-sequence/frame_170_delay-0.041s.webp')}
+              src={assetUrl('images/agro-prod/agro-produtividade.webp')}
               alt="Campo com solo saudável em luz natural"
               loading="lazy"
               className="h-[480px] w-full object-cover"

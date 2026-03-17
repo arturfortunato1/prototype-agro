@@ -80,20 +80,14 @@ export function Header() {
             <img
               src={LOGO_SRC}
               alt="Syngenta"
-              className={`w-auto transition-all duration-500 ${isScrolled ? 'h-8 md:h-9' : 'h-9 md:h-10'} ${
+              className={`w-auto transition-all duration-500 ${isScrolled ? 'h-11 md:h-12' : 'h-14 md:h-16'} ${
                 isScrolled ? '' : 'drop-shadow-[0_6px_18px_rgba(0,0,0,0.28)]'
               }`}
             />
           </a>
 
           <nav className="hidden items-center gap-7 xl:flex" aria-label="Navegação principal">
-            <div
-              className={`flex items-center gap-7 rounded-full px-6 py-2.5 transition-all duration-500 ${
-                isScrolled
-                  ? 'border border-syngenta-deep/10 bg-transparent'
-                  : 'border border-white/18 bg-[#071f3b]/34 backdrop-blur-md'
-              }`}
-            >
+            <div className="flex items-center gap-7 px-2 py-1">
               {navLinks.slice(0, 5).map((link) => (
                 <LinkItem key={link.id} id={link.id} label={link.label} light={!isScrolled} />
               ))}

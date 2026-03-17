@@ -60,7 +60,7 @@ export const solutionCards: SolutionCard[] = [
     image: 'images/solucoes-conectadas/2sementes.jpg',
   },
   {
-    title: 'Syngenta Digital',
+    title: 'Agro Tech',
     description: 'Dados, previsibilidade e decisão com mais inteligência.',
     image: 'images/solucoes-conectadas/3agrotech.webp',
   },

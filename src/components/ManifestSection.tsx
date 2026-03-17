@@ -75,7 +75,7 @@ export function ManifestSection() {
           className="relative overflow-hidden rounded-[30px] border border-syngenta-deep/10 bg-white shadow-soft"
         >
           <img
-            src={assetUrl('images/hero-sequence/frame_166_delay-0.041s.webp')}
+            src={assetUrl('images/agro-integrado/agro-integrado.jpg')}
             alt="Detalhe de lavoura em alta definição"
             loading="lazy"
             className="h-[440px] w-full object-cover"

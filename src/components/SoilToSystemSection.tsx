@@ -2,46 +2,73 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 
 import { ecosystemLayers } from '../data/content';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import { assetUrl } from '../utils';
 
 const supportPoints = ['Mais contexto para decidir', 'Mais precisão para atuar', 'Mais consistência para produzir'];
 
-const nodePositions = [
-  { top: '8%', left: '7%', width: '41%' },
-  { top: '22%', left: '50%', width: '39%' },
-  { top: '38%', left: '15%', width: '41%' },
-  { top: '53%', left: '53%', width: '36%' },
-  { top: '68%', left: '22%', width: '39%' },
-  { top: '82%', left: '56%', width: '34%' },
+const openPositions = [
+  { left: '0%', top: '8%', rotate: -1.5 },
+  { left: '58%', top: '20%', rotate: 1.3 },
+  { left: '4%', top: '35%', rotate: -1 },
+  { left: '60%', top: '49%', rotate: 1.2 },
+  { left: '8%', top: '64%', rotate: -1.1 },
+  { left: '58%', top: '79%', rotate: 1.1 },
 ];
 
 export function SoilToSystemSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const reducedMotion = usePrefersReducedMotion();
+  const isMobile = useMediaQuery('(max-width: 1024px)');
 
   useEffect(() => {
-    if (reducedMotion || !sectionRef.current) return;
+    if (!sectionRef.current || reducedMotion || isMobile) return;
 
     const context = gsap.context(() => {
-      gsap.from('[data-ecosystem-layer]', {
-        y: 32,
-        opacity: 0,
-        scale: 0.96,
-        duration: 0.9,
-        stagger: 0.08,
-        ease: 'power3.out',
+      const cards = gsap.utils.toArray<HTMLElement>('[data-ecosystem-layer]');
+
+      gsap.set(cards, {
+        left: '50%',
+        top: '74px',
+        xPercent: -50,
+        scale: 0.94,
+        opacity: 0.86,
+        rotate: 0,
+      });
+
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top 70%',
+          start: 'top 78%',
+          end: 'top 22%',
+          scrub: 0.85,
         },
       });
 
+      cards.forEach((card, index) => {
+        const position = openPositions[index];
+
+        tl.to(
+          card,
+          {
+            left: position.left,
+            top: position.top,
+            xPercent: 0,
+            rotate: position.rotate,
+            scale: 1,
+            opacity: 1,
+            ease: 'power2.out',
+          },
+          0,
+        );
+      });
+
       gsap.from('[data-ecosystem-point]', {
-        x: 24,
+        x: 18,
         opacity: 0,
         duration: 0.75,
-        stagger: 0.1,
+        stagger: 0.09,
         ease: 'power3.out',
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -50,8 +77,8 @@ export function SoilToSystemSection() {
       });
 
       gsap.to('[data-soil-bg]', {
-        yPercent: -8,
-        scale: 1.06,
+        yPercent: -7,
+        scale: 1.05,
         ease: 'none',
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -63,7 +90,7 @@ export function SoilToSystemSection() {
     }, sectionRef);
 
     return () => context.revert();
-  }, [reducedMotion]);
+  }, [reducedMotion, isMobile]);
 
   return (
     <section
@@ -73,72 +100,55 @@ export function SoilToSystemSection() {
     >
       <img
         data-soil-bg
-        src={assetUrl('images/hero-sequence/frame_174_delay-0.041s.webp')}
+        src={assetUrl('images/agro-system/agro-system.png')}
         alt="Contexto visual do ecossistema agrícola"
         loading="lazy"
-        className="absolute inset-0 h-full w-full object-cover opacity-[0.26]"
+        className="absolute inset-0 h-full w-full object-cover opacity-[0.24]"
       />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(130deg,rgba(3,26,53,0.9)_0%,rgba(4,40,84,0.88)_52%,rgba(4,53,96,0.86)_100%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(120,190,32,0.2),transparent_35%),radial-gradient(circle_at_85%_80%,rgba(0,87,184,0.32),transparent_42%)]" />
       <div className="pointer-events-none absolute inset-0 bg-noise-soft bg-[size:5px_5px] opacity-[0.08]" />
 
-      <div className="relative mx-auto grid w-full max-w-[1400px] gap-12 px-6 md:px-10 lg:grid-cols-[1.14fr_1fr] lg:items-start">
-        <div className="relative min-h-[620px] overflow-hidden rounded-[36px] border border-white/20 bg-white/[0.05]">
-          <img
-            src={assetUrl('images/hero-sequence/frame_158_delay-0.041s.webp')}
-            alt="Mapa visual do sistema no campo"
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover opacity-35"
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,25,51,0.5)_0%,rgba(4,25,51,0.78)_100%)]" />
+      <div className="relative mx-auto grid w-full max-w-[1400px] gap-12 px-6 md:px-10 lg:grid-cols-[1.16fr_1fr] lg:items-start">
+        <div className="relative min-h-[760px] overflow-visible rounded-[36px] border border-white/20 bg-white/[0.04] p-3">
+          <div className="absolute left-1/2 top-14 h-[640px] w-[min(62%,720px)] -translate-x-1/2 overflow-hidden rounded-[32px] border border-white/22 bg-white/[0.08]">
+            <img
+              src={assetUrl('images/agro-system/agro-system.png')}
+              alt="Mapa visual do sistema no campo"
+              loading="lazy"
+              className="h-full w-full object-cover opacity-70"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,25,51,0.28)_0%,rgba(4,25,51,0.6)_100%)]" />
+          </div>
 
-          <svg
-            className="absolute inset-0 hidden h-full w-full opacity-45 lg:block"
-            viewBox="0 0 1000 800"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <path d="M130 92 L540 192 L230 324 L560 432 L300 548 L620 665" fill="none" stroke="rgba(242,201,76,0.62)" strokeWidth="2" strokeLinecap="round" strokeDasharray="6 8" />
-            <circle cx="130" cy="92" r="6" fill="rgba(242,201,76,0.9)" />
-            <circle cx="540" cy="192" r="6" fill="rgba(242,201,76,0.9)" />
-            <circle cx="230" cy="324" r="6" fill="rgba(242,201,76,0.9)" />
-            <circle cx="560" cy="432" r="6" fill="rgba(242,201,76,0.9)" />
-            <circle cx="300" cy="548" r="6" fill="rgba(242,201,76,0.9)" />
-            <circle cx="620" cy="665" r="6" fill="rgba(242,201,76,0.9)" />
-          </svg>
-
-          <div className="hidden lg:block">
-            {ecosystemLayers.map((layer, index) => {
-              const position = nodePositions[index];
-
-              return (
+          {!isMobile ? (
+            <div className="hidden lg:block">
+              {ecosystemLayers.map((layer) => (
                 <article
                   key={layer.name}
                   data-ecosystem-layer
-                  className="absolute rounded-2xl border border-white/26 bg-white/[0.12] p-4 backdrop-blur-md"
-                  style={{ top: position.top, left: position.left, width: position.width }}
+                  className="absolute w-[44%] max-w-[330px] min-w-[240px] rounded-2xl border border-white/30 bg-[#ffffff1c] px-5 py-4 backdrop-blur-md"
                 >
                   <p className="text-[11px] uppercase tracking-[0.22em] text-syngenta-yellow/88">{layer.name}</p>
                   <h3 className="mt-2 font-heading text-2xl font-semibold leading-tight text-white">{layer.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-white/84">{layer.description}</p>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="relative z-10 space-y-3 pt-[360px]">
+              {ecosystemLayers.map((layer) => (
+                <article
+                  key={layer.name}
+                  className="rounded-2xl border border-white/22 bg-white/[0.1] p-4 backdrop-blur"
+                >
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-syngenta-yellow/88">{layer.name}</p>
+                  <h3 className="mt-2 font-heading text-xl font-semibold text-white">{layer.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-white/82">{layer.description}</p>
                 </article>
-              );
-            })}
-          </div>
-
-          <div className="relative z-10 space-y-3 p-6 lg:hidden">
-            {ecosystemLayers.map((layer) => (
-              <article
-                key={layer.name}
-                data-ecosystem-layer
-                className="rounded-2xl border border-white/22 bg-white/[0.1] p-4 backdrop-blur"
-              >
-                <p className="text-[11px] uppercase tracking-[0.22em] text-syngenta-yellow/88">{layer.name}</p>
-                <h3 className="mt-2 font-heading text-xl font-semibold text-white">{layer.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/82">{layer.description}</p>
-              </article>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="relative z-10 lg:pt-6">
