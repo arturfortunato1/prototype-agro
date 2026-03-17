@@ -5,6 +5,7 @@ import { CTAButton } from './CTAButton';
 import { heroStages } from '../data/content';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { assetUrl } from '../utils';
 
 const TOTAL_FRAMES = 192;
 const PIN_MULTIPLIER = 5.3;
@@ -15,7 +16,7 @@ type WindowWithIdle = Window & {
 };
 
 function framePath(frame: number) {
-  return `/images/hero-sequence/frame_${String(frame).padStart(3, '0')}_delay-0.041s.webp`;
+  return assetUrl(`images/hero-sequence/frame_${String(frame).padStart(3, '0')}_delay-0.041s.webp`);
 }
 
 function drawImageCover(canvas: HTMLCanvasElement, image: HTMLImageElement) {
@@ -238,7 +239,7 @@ export function HeroSequenceSection() {
     >
       {prefersReducedMotion ? (
         <img
-          src="/images/hero-sequence/frame_191_delay-0.041s.webp"
+          src={assetUrl('images/hero-sequence/frame_191_delay-0.041s.webp')}
           alt="Lavoura verde com pulverizador em ação"
           className="absolute inset-0 h-full w-full object-cover"
           loading="eager"

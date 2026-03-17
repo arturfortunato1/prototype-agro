@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 
 import { SectionHeading } from './SectionHeading';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { assetUrl } from '../utils';
 
 const highlights = [
   'Proteção de cultivos',
@@ -76,7 +77,7 @@ export function ManifestSection() {
           data-animate="reveal"
         >
           <img
-            src="/images/hero-sequence/frame_164_delay-0.041s.webp"
+            src={assetUrl('images/hero-sequence/frame_164_delay-0.041s.webp')}
             alt="Detalhe premium de lavoura verde"
             loading="lazy"
             className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.02]"

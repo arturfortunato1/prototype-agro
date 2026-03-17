@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { SectionHeading } from './SectionHeading';
 import { impactMetrics } from '../data/content';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { assetUrl } from '../utils';
 
 function formatMetricValue(value: number, suffix: string) {
   const formatted = value >= 1000 ? value.toLocaleString('pt-BR') : String(value);
@@ -76,7 +77,7 @@ export function ImpactSection() {
   return (
     <section id="impacto" ref={sectionRef} className="relative overflow-hidden bg-syngenta-deep py-24 text-white md:py-32">
       <img
-        src="/images/hero-sequence/frame_188_delay-0.041s.webp"
+        src={assetUrl('images/hero-sequence/frame_188_delay-0.041s.webp')}
         alt="Textura desfocada de campo"
         className="absolute inset-0 h-full w-full object-cover opacity-[0.18]"
         loading="lazy"

@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 
 import { CTAButton } from './CTAButton';
 import { navLinks } from '../data/content';
+import { assetUrl } from '../utils';
 
-const LOGO_SRC = '/images/logo/syngenta-logo.png';
+const LOGO_SRC = assetUrl('images/logo/Logo-novo.png');
 
 function goToSection(sectionId: string) {
   const section = document.getElementById(sectionId);

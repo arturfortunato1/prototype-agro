@@ -1,4 +1,5 @@
 import { CTAButton } from './CTAButton';
+import { assetUrl } from '../utils';
 
 function goToSection(sectionId: string) {
   const target = document.getElementById(sectionId);
@@ -12,7 +13,7 @@ export function FinalCTASection() {
   return (
     <section id="contato" className="relative overflow-hidden py-24 md:py-32">
       <img
-        src="/images/hero-sequence/frame_191_delay-0.041s.webp"
+        src={assetUrl('images/hero-sequence/frame_191_delay-0.041s.webp')}
         alt="Campo ao entardecer com tecnologia aplicada"
         className="absolute inset-0 h-full w-full object-cover"
         loading="lazy"

@@ -1,11 +1,12 @@
 import { footerColumns } from '../data/content';
+import { assetUrl } from '../utils';
 
 export function Footer() {
   return (
     <footer id="footer" className="border-t border-syngenta-deep/10 bg-white py-14">
       <div className="mx-auto grid w-full max-w-[1400px] gap-10 px-6 md:px-10 lg:grid-cols-[1.2fr_2fr]">
         <div>
-          <img src="/images/logo/syngenta-logo.png" alt="Syngenta" className="h-11 w-auto" />
+          <img src={assetUrl('images/logo/Logo-novo.png')} alt="Syngenta" className="h-11 w-auto" />
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-syngenta-deep/72">
             Tecnologia agrícola global com foco em ciência, produtividade e sustentabilidade para o campo brasileiro.
           </p>

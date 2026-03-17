@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 
 import { ecosystemLayers } from '../data/content';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { assetUrl } from '../utils';
 
 export function SoilToSystemSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -53,7 +54,7 @@ export function SoilToSystemSection() {
       <div className="mx-auto grid w-full max-w-[1400px] gap-14 px-6 md:px-10 lg:grid-cols-[1.08fr_1fr]">
         <div className="relative min-h-[560px]">
           <img
-            src="/images/hero-sequence/frame_108_delay-0.041s.webp"
+            src={assetUrl('images/hero-sequence/frame_108_delay-0.041s.webp')}
             alt="Composição conceitual do solo ao sistema"
             loading="lazy"
             className="absolute inset-0 h-full w-full rounded-[32px] object-cover opacity-35"

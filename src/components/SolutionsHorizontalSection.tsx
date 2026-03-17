@@ -5,6 +5,7 @@ import { SectionHeading } from './SectionHeading';
 import { solutionCards } from '../data/content';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { assetUrl } from '../utils';
 
 export function SolutionsHorizontalSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -103,7 +104,12 @@ export function SolutionsHorizontalSection() {
               data-animate="reveal"
             >
               <div className="relative h-56 overflow-hidden">
-                <img src={card.image} alt={card.title} loading="lazy" className="h-full w-full object-cover" />
+                <img
+                  src={assetUrl(card.image)}
+                  alt={card.title}
+                  loading="lazy"
+                  className="h-full w-full object-cover"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-syngenta-deep/45 to-transparent" />
               </div>
               <div className="space-y-3 p-6">
@@ -131,7 +137,12 @@ export function SolutionsHorizontalSection() {
                 data-solution-card
                 className="relative h-[70vh] min-h-[540px] w-[78vw] max-w-[920px] flex-shrink-0 overflow-hidden rounded-[38px] border border-syngenta-deep/10 bg-syngenta-offwhite shadow-panel"
               >
-                <img src={card.image} alt={card.title} loading="lazy" className="h-full w-full object-cover" />
+                <img
+                  src={assetUrl(card.image)}
+                  alt={card.title}
+                  loading="lazy"
+                  className="h-full w-full object-cover"
+                />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,34,64,0.05)_0%,rgba(10,34,64,0.75)_80%)]" />
                 <div className="absolute bottom-0 p-10 md:p-12">
                   <p className="mb-4 text-xs uppercase tracking-[0.22em] text-syngenta-yellow">Painel {index + 1}</p>
