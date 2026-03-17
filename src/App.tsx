@@ -36,7 +36,7 @@ function App() {
 
           // Placeholder hook for future analytics integration.
           window.dispatchEvent(
-            new CustomEvent('syngenta:scroll-depth', {
+            new CustomEvent('prototype-agro:scroll-depth', {
               detail: { depth: threshold },
             }),
           );

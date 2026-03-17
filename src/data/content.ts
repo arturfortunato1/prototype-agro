@@ -6,7 +6,7 @@ export type NavLink = {
 export const navLinks: NavLink[] = [
   { id: 'solucoes', label: 'Soluções' },
   { id: 'agricultura-regenerativa', label: 'Agricultura Regenerativa' },
-  { id: 'syngenta-digital', label: 'Syngenta Digital' },
+  { id: 'agrotech', label: 'AgroTech' },
   { id: 'portfolio', label: 'Portfólio' },
   { id: 'sustentabilidade', label: 'Sustentabilidade' },
   { id: 'contato', label: 'Fale com um Especialista' },
@@ -25,7 +25,7 @@ export const heroStages: HeroStage[] = [
     eyebrow: 'Ciência aplicada ao campo',
     title: 'Transformar pressão em produtividade.',
     description:
-      'Da variabilidade climática à tomada de decisão, a Syngenta ajuda o agricultor a produzir com mais inteligência, resiliência e eficiência.',
+      'Da variabilidade climática à tomada de decisão, conectamos ciência e tecnologia para produzir com mais inteligência, resiliência e eficiência.',
     ctaPrimary: 'Conheça nossas soluções',
     ctaSecondary: 'Explorar a jornada',
   },
@@ -37,7 +37,7 @@ export const heroStages: HeroStage[] = [
   {
     title: 'Tecnologia para colher um futuro melhor.',
     description: 'Mais precisão. Mais sustentabilidade. Mais resultado no campo.',
-    ctaPrimary: 'Ver como a Syngenta atua',
+    ctaPrimary: 'Ver como atuamos',
   },
 ];
 
@@ -60,7 +60,7 @@ export const solutionCards: SolutionCard[] = [
     image: 'images/solucoes-conectadas/2sementes.jpg',
   },
   {
-    title: 'Agro Tech',
+    title: 'AgroTech',
     description: 'Dados, previsibilidade e decisão com mais inteligência.',
     image: 'images/solucoes-conectadas/3agrotech.webp',
   },
@@ -243,11 +243,11 @@ export const credibilityBlocks = [
 export const footerColumns = [
   {
     title: 'Soluções',
-    links: ['Proteção de cultivos', 'Sementes', 'Syngenta Digital', 'Portfólio integrado'],
+    links: ['Proteção de cultivos', 'Sementes', 'AgroTech', 'Portfólio integrado'],
   },
   {
     title: 'Empresa',
-    links: ['Sobre a Syngenta', 'Sustentabilidade', 'Carreiras', 'Imprensa'],
+    links: ['Sobre nós', 'Sustentabilidade', 'Carreiras', 'Imprensa'],
   },
   {
     title: 'Contato',

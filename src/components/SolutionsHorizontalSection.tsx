@@ -90,7 +90,6 @@ export function SolutionsHorizontalSection() {
     <section id="solucoes" ref={sectionRef} className="relative overflow-hidden bg-white py-24 md:py-32">
       <div className="mx-auto w-full max-w-[1400px] px-6 md:px-10">
         <SectionHeading
-          eyebrow="Soluções conectadas"
           title="Da proteção ao digital, uma arquitetura de valor para cada decisão no campo."
           description="Enquanto a produção ganha complexidade, a estratégia precisa integrar tecnologia, agronomia e visão operacional."
         />
@@ -125,11 +124,7 @@ export function SolutionsHorizontalSection() {
           <div
             ref={cursorRef}
             className="pointer-events-none absolute left-0 top-0 z-30 hidden h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full border border-syngenta-blue/25 bg-syngenta-blue/5 opacity-0 backdrop-blur-md transition-opacity lg:block"
-          >
-            <span className="absolute inset-0 flex items-center justify-center text-[10px] uppercase tracking-[0.22em] text-syngenta-blue/70">
-              explorar
-            </span>
-          </div>
+          />
 
           <div ref={viewportRef} className="overflow-hidden px-6 md:px-10">
             <div ref={trackRef} className="flex items-stretch gap-6">

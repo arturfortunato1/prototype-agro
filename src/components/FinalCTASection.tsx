@@ -26,7 +26,7 @@ export function FinalCTASection() {
           Vamos construir uma agricultura mais preparada para o amanhã.
         </h2>
         <p className="mx-auto mt-6 max-w-3xl text-base leading-relaxed text-white/85 md:text-lg">
-          Conheça as soluções da Syngenta e descubra como integrar tecnologia, manejo e visão de futuro à sua
+          Conheça nossas soluções e descubra como integrar tecnologia, manejo e visão de futuro à sua
           operação.
         </p>
 

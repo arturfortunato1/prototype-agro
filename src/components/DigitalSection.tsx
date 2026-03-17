@@ -4,7 +4,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { SectionHeading } from './SectionHeading';
 import { digitalSteps } from '../data/content';
-import { useMediaQuery } from '../hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 const panelDetails = [
@@ -36,7 +35,6 @@ export function DigitalSection() {
 
   const [activeStep, setActiveStep] = useState(0);
 
-  const isMobile = useMediaQuery('(max-width: 1024px)');
   const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
@@ -68,36 +66,27 @@ export function DigitalSection() {
         }
       });
 
-      if (!isMobile && !reducedMotion && mockupRef.current) {
-        ScrollTrigger.create({
-          trigger: sectionRef.current,
-          start: 'top 14%',
-          end: 'bottom bottom',
-          pin: mockupRef.current,
-          pinSpacing: false,
-        });
-      }
     }, sectionRef);
 
     return () => context.revert();
-  }, [isMobile, reducedMotion]);
+  }, [reducedMotion]);
 
   const activePanel = panelDetails[activeStep];
   const activeStory = digitalSteps[activeStep];
 
   return (
-    <section id="syngenta-digital" ref={sectionRef} className="relative overflow-hidden bg-[#eef4f9] py-24 md:py-32">
+    <section id="agrotech" ref={sectionRef} className="relative overflow-hidden bg-[#eef4f9] py-24 md:py-32">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_20%,rgba(0,87,184,0.12),transparent_42%),radial-gradient(circle_at_85%_80%,rgba(120,190,32,0.12),transparent_36%)]" />
 
       <div className="relative mx-auto w-full max-w-[1400px] px-6 md:px-10">
         <SectionHeading
-          eyebrow="Syngenta Digital"
+          eyebrow="AgroTech"
           title="Dados que ajudam o campo a decidir melhor."
           description="Quando informação e recomendação trabalham juntas, o manejo ganha velocidade, contexto e precisão."
         />
 
         <div className="mt-14 grid gap-10 lg:grid-cols-[1.12fr_1fr] lg:items-start">
-          <div ref={mockupRef} className="lg:top-24">
+          <div ref={mockupRef} className="lg:sticky lg:top-1/2 lg:-translate-y-1/2">
             <div className="relative overflow-hidden rounded-[34px] border border-syngenta-deep/10 bg-white shadow-panel">
               <div className="absolute inset-0 bg-[linear-gradient(130deg,rgba(0,87,184,0.08),transparent_50%,rgba(120,190,32,0.08))]" />
 
@@ -105,7 +94,7 @@ export function DigitalSection() {
                 <header className="flex items-center justify-between border-b border-syngenta-deep/10 pb-4">
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.22em] text-syngenta-blue/75">Plataforma</p>
-                    <h3 className="font-heading text-2xl font-semibold text-syngenta-deep">Syngenta Digital</h3>
+                    <h3 className="font-heading text-2xl font-semibold text-syngenta-deep">AgroTech</h3>
                   </div>
                   <span className="rounded-full border border-syngenta-deep/10 bg-white px-4 py-1 text-xs font-medium text-syngenta-deep/70">
                     Etapa {activeStep + 1}/{digitalSteps.length}

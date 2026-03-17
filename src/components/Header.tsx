@@ -76,11 +76,11 @@ export function Header() {
         }`}
       >
         <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between px-6 md:px-10">
-          <a href="#top" className="flex items-center" aria-label="Syngenta Brasil - Início">
+          <a href="#top" className="flex items-center" aria-label="AgroTech Brasil - Início">
             <img
               src={LOGO_SRC}
-              alt="Syngenta"
-              className={`w-auto transition-all duration-500 ${isScrolled ? 'h-11 md:h-12' : 'h-14 md:h-16'} ${
+              alt="AgroTech"
+              className={`w-auto transition-all duration-500 ${isScrolled ? 'h-[3.6rem] md:h-[3.9rem]' : 'h-[4.7rem] md:h-[5.2rem]'} ${
                 isScrolled ? '' : 'drop-shadow-[0_6px_18px_rgba(0,0,0,0.28)]'
               }`}
             />

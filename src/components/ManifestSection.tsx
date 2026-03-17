@@ -54,7 +54,7 @@ export function ManifestSection() {
           <SectionHeading
             eyebrow="Visão integrada"
             title="Uma visão integrada para um agro mais resiliente."
-            description="A agricultura exige respostas cada vez mais precisas. Por isso, a Syngenta conecta ciência, inovação e conhecimento prático para apoiar decisões melhores em cada etapa da jornada produtiva."
+            description="A agricultura exige respostas cada vez mais precisas. Por isso, conectamos ciência, inovação e conhecimento prático para apoiar decisões melhores em cada etapa da jornada produtiva."
           />
 
           <div className="mt-10 grid gap-3 sm:grid-cols-2">
@@ -80,9 +80,6 @@ export function ManifestSection() {
             loading="lazy"
             className="h-[440px] w-full object-cover"
           />
-          <figcaption className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-syngenta-deep/70 to-transparent p-6 text-sm text-white/88">
-            Ciência aplicada para decisões mais consistentes do planejamento à operação.
-          </figcaption>
         </figure>
       </div>
     </section>
