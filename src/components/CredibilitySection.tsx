@@ -96,7 +96,7 @@ export function CredibilitySection() {
   const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
-    if (reducedMotion || !sectionRef.current) return;
+    if (reducedMotion || navigator.maxTouchPoints > 0 || !sectionRef.current) return;
 
     const ctx = gsap.context(() => {
       /* ── Staggered card reveals ────────────────────────────── */

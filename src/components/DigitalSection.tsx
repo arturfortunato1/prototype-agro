@@ -129,7 +129,7 @@ export function DigitalSection() {
             onEnterBack: () => setActiveStep(index),
           });
 
-          if (!reducedMotion) {
+          if (!reducedMotion && navigator.maxTouchPoints === 0) {
             gsap.from(chapter, {
               y: 22,
               opacity: 0,

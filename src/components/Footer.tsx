@@ -10,7 +10,7 @@ export function Footer() {
   const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
-    if (reducedMotion || !footerRef.current) return;
+    if (reducedMotion || navigator.maxTouchPoints > 0 || !footerRef.current) return;
 
     const context = gsap.context(() => {
       // Stagger reveal the footer columns

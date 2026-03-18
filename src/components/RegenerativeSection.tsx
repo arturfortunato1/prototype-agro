@@ -15,7 +15,7 @@ export function RegenerativeSection() {
     if (!sectionRef.current) return;
 
     const context = gsap.context(() => {
-      if (!reducedMotion) {
+      if (!reducedMotion && navigator.maxTouchPoints === 0) {
         gsap.from('[data-regenerative-image]', {
           clipPath: 'inset(0 100% 0 0)',
           duration: 1.1,

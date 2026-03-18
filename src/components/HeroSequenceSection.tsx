@@ -22,10 +22,13 @@ export function HeroSequenceSection() {
   const [activeStage, setActiveStage] = useState(0);
   const [videoReady, setVideoReady] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
+  // iOS Safari doesn't buffer video for currentTime scrubbing — use static fallback
+  const isTouchDevice = navigator.maxTouchPoints > 0;
+  const useStaticFallback = prefersReducedMotion || isTouchDevice;
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || prefersReducedMotion) return;
+    if (!video || useStaticFallback) return;
 
     // Once enough data is buffered, mark as ready
     const onCanPlay = () => setVideoReady(true);
@@ -76,7 +79,7 @@ export function HeroSequenceSection() {
       className="relative h-svh overflow-hidden bg-syngenta-deep text-white"
       aria-label="Transformação do campo por ciência e tecnologia"
     >
-      {prefersReducedMotion ? (
+      {useStaticFallback ? (
         <img
           src={assetUrl('images/hero-sequence/frame_191_delay-0.041s.webp')}
           alt="Lavoura verde com pulverizador em ação"
@@ -121,7 +124,7 @@ export function HeroSequenceSection() {
             return (
               <article
                 key={stage.title}
-                className={`absolute max-w-3xl transition-all duration-700 ${
+                className={`absolute w-[calc(100vw-3rem)] max-w-3xl md:w-auto transition-all duration-700 ${
                   isVisible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0'
                 }`}
                 style={{ transformOrigin: 'left center' }}

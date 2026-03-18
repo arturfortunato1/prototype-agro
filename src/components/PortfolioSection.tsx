@@ -41,7 +41,7 @@ export function PortfolioSection() {
 
   /* ── Scroll-triggered stagger entrance ── */
   useEffect(() => {
-    if (prefersReducedMotion || !gridRef.current || hasAnimatedEntrance.current) return;
+    if (prefersReducedMotion || navigator.maxTouchPoints > 0 || !gridRef.current || hasAnimatedEntrance.current) return;
 
     const cards = gridRef.current.querySelectorAll('[data-portfolio-card]');
     if (!cards.length) return;

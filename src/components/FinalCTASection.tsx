@@ -16,7 +16,7 @@ export function FinalCTASection() {
   const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
-    if (reducedMotion || !sectionRef.current) return;
+    if (reducedMotion || navigator.maxTouchPoints > 0 || !sectionRef.current) return;
 
     const context = gsap.context(() => {
       // Parallax background image

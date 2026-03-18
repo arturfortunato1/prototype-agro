@@ -76,7 +76,11 @@ function App() {
 
   // ── Global reveal animation system ──
   useEffect(() => {
-    if (reducedMotion) return;
+    // Skip all GSAP scroll animations on touch devices (iOS/Android).
+    // gsap.from() sets opacity:0 immediately — if ScrollTrigger misfires on
+    // mobile (common after pinned sections), elements stay permanently hidden.
+    const isTouchDevice = navigator.maxTouchPoints > 0;
+    if (reducedMotion || isTouchDevice) return;
 
     const context = gsap.context(() => {
       // Standard reveal — fade up
