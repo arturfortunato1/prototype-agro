@@ -3,13 +3,15 @@ import { gsap } from 'gsap';
 
 import { useMediaQuery } from '../hooks/useMediaQuery';
 
-type CursorState = 'default' | 'hover' | 'action' | 'hidden';
+type CursorState = 'default' | 'hover' | 'action' | 'text' | 'hidden';
 
 export function CustomCursor() {
   const outerRef = useRef<HTMLDivElement | null>(null);
   const innerRef = useRef<HTMLDivElement | null>(null);
+  const textRef = useRef<HTMLSpanElement | null>(null);
   const isMobile = useMediaQuery('(max-width: 1024px)');
   const [state, setState] = useState<CursorState>('default');
+  const [cursorText, setCursorText] = useState('');
 
   useEffect(() => {
     if (isMobile) return;
@@ -18,7 +20,6 @@ export function CustomCursor() {
     const inner = innerRef.current;
     if (!outer || !inner) return;
 
-    // Use gsap.quickTo for ultra-smooth cursor tracking
     const outerX = gsap.quickTo(outer, 'x', { duration: 0.5, ease: 'power3.out' });
     const outerY = gsap.quickTo(outer, 'y', { duration: 0.5, ease: 'power3.out' });
     const innerX = gsap.quickTo(inner, 'x', { duration: 0.15, ease: 'power2.out' });
@@ -31,15 +32,32 @@ export function CustomCursor() {
       innerY(e.clientY);
     };
 
-    const onMouseEnterInteractive = () => setState('hover');
-    const onMouseLeaveInteractive = () => setState('default');
-    const onMouseEnterAction = () => setState('action');
+    const onMouseEnterInteractive = () => {
+      setState('hover');
+      setCursorText('');
+    };
+    const onMouseLeaveInteractive = () => {
+      setState('default');
+      setCursorText('');
+    };
+    const onMouseEnterAction = () => {
+      setState('action');
+      setCursorText('');
+    };
+    const onMouseEnterText = (e: MouseEvent) => {
+      const target = e.currentTarget as HTMLElement;
+      if (target.dataset.cursorText) {
+        setCursorText(target.dataset.cursorText);
+        setState('text');
+      }
+    };
+
     const onMouseDown = () => {
       gsap.to(outer, { scale: 0.85, duration: 0.15 });
       gsap.to(inner, { scale: 0.7, duration: 0.1 });
     };
     const onMouseUp = () => {
-      gsap.to(outer, { scale: state === 'hover' ? 2.2 : 1, duration: 0.3, ease: 'elastic.out(1, 0.4)' });
+      gsap.to(outer, { scale: state === 'hover' ? 2.2 : (state === 'text' ? 3.5 : 1), duration: 0.3, ease: 'elastic.out(1, 0.4)' });
       gsap.to(inner, { scale: 1, duration: 0.2 });
     };
 
@@ -47,7 +65,6 @@ export function CustomCursor() {
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mouseup', onMouseUp);
 
-    // Observe interactive elements dynamically
     const addListeners = () => {
       document.querySelectorAll('a, button, [data-cursor="action"]').forEach((el) => {
         el.addEventListener('mouseenter', onMouseEnterInteractive);
@@ -57,9 +74,12 @@ export function CustomCursor() {
         el.addEventListener('mouseenter', onMouseEnterAction);
         el.addEventListener('mouseleave', onMouseLeaveInteractive);
       });
+      document.querySelectorAll('[data-cursor-text]').forEach((el) => {
+        el.addEventListener('mouseenter', onMouseEnterText as EventListener);
+        el.addEventListener('mouseleave', onMouseLeaveInteractive);
+      });
     };
 
-    // Run once and set up a MutationObserver for dynamic elements
     addListeners();
     const observer = new MutationObserver(() => addListeners());
     observer.observe(document.body, { childList: true, subtree: true });
@@ -96,6 +116,15 @@ export function CustomCursor() {
           ease: 'power3.out',
         });
         break;
+      case 'text':
+        gsap.to(outer, {
+          scale: 3.8,
+          borderColor: 'rgba(10, 34, 64, 0.6)',
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          duration: 0.45,
+          ease: 'power3.out',
+        });
+        break;
       default:
         gsap.to(outer, {
           scale: 1,
@@ -111,16 +140,26 @@ export function CustomCursor() {
 
   return (
     <>
-      {/* Outer ring — follows with a soft delay */}
       <div
         ref={outerRef}
-        className="pointer-events-none fixed left-0 top-0 z-[9999] -ml-5 -mt-5 h-10 w-10 rounded-full border border-syngenta-blue/35 mix-blend-difference"
+        className="pointer-events-none fixed left-0 top-0 z-[9999] -ml-5 -mt-5 flex h-10 w-10 items-center justify-center rounded-full border border-syngenta-blue/35 shadow-sm transition-[background-color,border-color] mix-blend-difference"
         style={{ willChange: 'transform' }}
-      />
-      {/* Inner dot — snappy tracking */}
+      >
+        <span
+          ref={textRef}
+          className={`text-center font-heading text-[3.8px] font-bold uppercase tracking-widest text-[#0a2240] transition-opacity duration-300 ${
+            state === 'text' ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{ transform: 'scale(1)', mixBlendMode: 'normal' }}
+        >
+          {cursorText}
+        </span>
+      </div>
       <div
         ref={innerRef}
-        className="pointer-events-none fixed left-0 top-0 z-[9999] -ml-1 -mt-1 h-2 w-2 rounded-full bg-syngenta-blue/80 mix-blend-difference"
+        className={`pointer-events-none fixed left-0 top-0 z-[9999] -ml-1 -mt-1 h-2 w-2 rounded-full bg-syngenta-blue/80 transition-opacity duration-200 mix-blend-difference ${
+          state === 'text' ? 'opacity-0' : 'opacity-100'
+        }`}
         style={{ willChange: 'transform' }}
       />
     </>

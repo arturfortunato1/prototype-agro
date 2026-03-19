@@ -11,6 +11,7 @@ import { ManifestSection } from './components/ManifestSection';
 import { SolutionsHorizontalSection } from './components/SolutionsHorizontalSection';
 import { SoilToSystemSection } from './components/SoilToSystemSection';
 import { DigitalSection } from './components/DigitalSection';
+import { KineticMarquee } from './components/KineticMarquee';
 import { RegenerativeSection } from './components/RegenerativeSection';
 import { PortfolioSection } from './components/PortfolioSection';
 import { ImpactSection } from './components/ImpactSection';
@@ -23,7 +24,6 @@ function App() {
   const reducedMotion = usePrefersReducedMotion();
   const lenisRef = useRef<LenisRef>(null);
 
-  // Sync Lenis with GSAP's Ticker for perfect scroll sync
   useEffect(() => {
     function update(time: number) {
       if (lenisRef.current?.lenis) {
@@ -39,7 +39,6 @@ function App() {
     };
   }, []);
 
-  // Make globally available strictly for old raw functions
   useEffect(() => {
     if (lenisRef.current?.lenis) {
       (window as any).__lenis = lenisRef.current.lenis;
@@ -55,7 +54,6 @@ function App() {
     }
   }, []);
 
-  // ── ScrollTrigger refresh after mount (accounts for pinned sections + iOS resize) ──
   useEffect(() => {
     const id = setTimeout(() => ScrollTrigger.refresh(), 400);
 
@@ -73,7 +71,6 @@ function App() {
     };
   }, []);
 
-  // ── Scroll depth analytics tracking ──
   useEffect(() => {
     const thresholds = [25, 50, 75, 100];
     const tracked = new Set<number>();
@@ -104,12 +101,10 @@ function App() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // ── Global reveal animation system ──
   useGSAP(() => {
     const isTouchDevice = navigator.maxTouchPoints > 0;
     if (reducedMotion || isTouchDevice) return;
 
-    // Standard reveal — fade up
     gsap.utils.toArray<HTMLElement>('[data-animate="reveal"]').forEach((element) => {
       if (element.dataset.animated === 'true') return;
 
@@ -127,7 +122,6 @@ function App() {
       element.dataset.animated = 'true';
     });
 
-    // Scale reveal — fade up with scale
     gsap.utils.toArray<HTMLElement>('[data-animate="scale"]').forEach((element) => {
       if (element.dataset.animated === 'true') return;
 
@@ -146,7 +140,6 @@ function App() {
       element.dataset.animated = 'true';
     });
 
-    // Slide-in from left
     gsap.utils.toArray<HTMLElement>('[data-animate="slide-left"]').forEach((element) => {
       if (element.dataset.animated === 'true') return;
 
@@ -164,7 +157,6 @@ function App() {
       element.dataset.animated = 'true';
     });
 
-    // Stagger children reveal
     gsap.utils.toArray<HTMLElement>('[data-animate="stagger"]').forEach((container) => {
       if (container.dataset.animated === 'true') return;
 
@@ -183,6 +175,42 @@ function App() {
 
       container.dataset.animated = 'true';
     });
+
+    // Global theme transitions
+    gsap.utils.toArray<HTMLElement>('[data-theme]').forEach((section) => {
+      const theme = section.dataset.theme;
+      const bgColor = theme === 'dark' ? '#031a35' : (theme === 'light' ? '#f5f7f4' : '#ffffff');
+      const textColor = theme === 'dark' ? '#ffffff' : '#0a2240';
+
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top 50%',
+        end: 'bottom 50%',
+        onEnter: () => gsap.to(document.body, { '--bg-color': bgColor, '--text-color': textColor, duration: 0.6 }),
+        onEnterBack: () => gsap.to(document.body, { '--bg-color': bgColor, '--text-color': textColor, duration: 0.6 }),
+      });
+    });
+
+    // Global Kinetic Skew
+    const skewSetter = gsap.quickSetter('[data-kinetic-skew]', 'skewY', 'deg');
+    const proxy = { skew: 0 };
+
+    ScrollTrigger.create({
+      onUpdate: (self) => {
+        const velocity = gsap.utils.clamp(-6, 6, self.getVelocity() / -150);
+        if (Math.abs(velocity) > Math.abs(proxy.skew)) {
+          proxy.skew = velocity;
+          gsap.to(proxy, {
+            skew: 0,
+            duration: 0.8,
+            ease: 'power3',
+            overwrite: true,
+            onUpdate: () => skewSetter(proxy.skew),
+          });
+        }
+      },
+    });
+
   }, { dependencies: [reducedMotion] });
 
   return (
@@ -199,6 +227,7 @@ function App() {
       <main>
         <HeroSequenceSection />
         <ManifestSection />
+        <KineticMarquee text="Agricultura do Futuro" outlineText="Inovação em Campo" speed={0.8} />
         <SolutionsHorizontalSection />
         <SoilToSystemSection />
         <DigitalSection />

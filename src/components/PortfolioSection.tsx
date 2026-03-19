@@ -10,6 +10,7 @@ import {
   type PortfolioItem,
 } from '../data/content';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { use3DTilt } from '../hooks/use3DTilt';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,8 +22,29 @@ function cardAccent(category: PortfolioItem['category']) {
     'Soluções integradas': 'from-[#264563] to-[#4f7f98]',
     Digital: 'from-[#1a5ca8] to-[#47a4c7]',
   };
-
   return accents[category];
+}
+
+function PortfolioCard({ item }: { item: PortfolioItem }) {
+  const cardRef = useRef<HTMLElement>(null);
+  use3DTilt(cardRef, 12);
+
+  return (
+    <article
+      ref={cardRef}
+      data-portfolio-card
+      className="group rounded-3xl border border-syngenta-deep/10 bg-white p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-syngenta-blue/30 hover:shadow-panel"
+      style={{ willChange: 'transform' }}
+    >
+      <span
+        className={`mb-6 block h-1 w-full rounded-full bg-gradient-to-r ${cardAccent(item.category)}`}
+        aria-hidden="true"
+      />
+      <p className="text-xs uppercase tracking-[0.2em] text-syngenta-blue/70">{item.category}</p>
+      <h3 className="mt-3 font-heading text-2xl font-semibold text-syngenta-deep">{item.title}</h3>
+      <p className="mt-3 text-sm leading-relaxed text-syngenta-deep/78">{item.description}</p>
+    </article>
+  );
 }
 
 export function PortfolioSection() {
@@ -46,7 +68,6 @@ export function PortfolioSection() {
     const cards = gridRef.current.querySelectorAll('[data-portfolio-card]');
     if (!cards.length) return;
 
-    // Set initial hidden state
     gsap.set(cards, { y: 60, opacity: 0, scale: 0.92 });
 
     const ctx = gsap.context(() => {
@@ -56,10 +77,7 @@ export function PortfolioSection() {
         scale: 1,
         duration: 0.7,
         ease: 'power3.out',
-        stagger: {
-          each: 0.09,
-          from: 'start',
-        },
+        stagger: { each: 0.09, from: 'start' },
         scrollTrigger: {
           trigger: gridRef.current,
           start: 'top 82%',
@@ -85,21 +103,14 @@ export function PortfolioSection() {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         cards,
-        {
-          y: 28,
-          opacity: 0,
-          scale: 0.94,
-        },
+        { y: 28, opacity: 0, scale: 0.94 },
         {
           y: 0,
           opacity: 1,
           scale: 1,
           duration: 0.5,
           ease: 'power2.out',
-          stagger: {
-            each: 0.06,
-            from: 'start',
-          },
+          stagger: { each: 0.06, from: 'start' },
         },
       );
     }, gridRef);
@@ -108,7 +119,7 @@ export function PortfolioSection() {
   }, [selectedCategory, prefersReducedMotion]);
 
   return (
-    <section id="portfolio" className="bg-syngenta-offwhite py-24 md:py-32">
+    <section id="portfolio" className="py-24 md:py-32" data-theme="light">
       <div className="mx-auto w-full max-w-[1400px] px-6 md:px-10">
         <SectionHeading
           eyebrow="Portfólio"
@@ -142,19 +153,7 @@ export function PortfolioSection() {
           className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
         >
           {visibleItems.map((item) => (
-            <article
-              key={item.title}
-              data-portfolio-card
-              className="group rounded-3xl border border-syngenta-deep/10 bg-white p-6 transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:border-syngenta-blue/30 hover:shadow-panel"
-            >
-              <span
-                className={`mb-6 block h-1 w-full rounded-full bg-gradient-to-r ${cardAccent(item.category)}`}
-                aria-hidden="true"
-              />
-              <p className="text-xs uppercase tracking-[0.2em] text-syngenta-blue/70">{item.category}</p>
-              <h3 className="mt-3 font-heading text-2xl font-semibold text-syngenta-deep">{item.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-syngenta-deep/78">{item.description}</p>
-            </article>
+            <PortfolioCard key={item.title} item={item} />
           ))}
         </div>
       </div>
