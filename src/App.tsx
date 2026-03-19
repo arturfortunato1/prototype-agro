@@ -1,10 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { ReactLenis } from 'lenis/react';
 import type { LenisRef } from 'lenis/react';
 
+import { Preloader } from './components/Preloader';
 import { Header } from './components/Header';
 import { HeroSequenceSection } from './components/HeroSequenceSection';
 import { ManifestSection } from './components/ManifestSection';
@@ -23,6 +24,19 @@ import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
 function App() {
   const reducedMotion = usePrefersReducedMotion();
   const lenisRef = useRef<LenisRef>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Lock scroll deeply if loading
+  useLayoutEffect(() => {
+    if (isLoading) {
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      window.scrollTo(0, 0);
+    } else {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+  }, [isLoading]);
 
   useEffect(() => {
     function update(time: number) {
@@ -223,6 +237,7 @@ function App() {
       wheelMultiplier: 1.8,
       touchMultiplier: (/Android/i.test(navigator.userAgent)) ? 1.2 : 2,
     }}>
+      {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
       <Header />
       <main>
         <HeroSequenceSection />
