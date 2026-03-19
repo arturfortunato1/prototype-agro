@@ -1,16 +1,26 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
 
 import { CTAButton } from './CTAButton';
 import { heroStages } from '../data/content';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
-import { lenisScrollTo } from '../hooks/useSmoothScroll';
+import { useAndroidVideoScrubber } from '../hooks/useAndroidVideoScrubber';
+import { getAndroidPerfTier, type AndroidPerfTier } from '../utils/deviceInfo';
 import { assetUrl } from '../utils';
 
-const PIN_MULTIPLIER = 5.3;
+// Lenis dynamic scrollTo function helper for CTA targeting
+function goToSection(sectionId: string) {
+  const lenis = (window as any).__lenis;
+  if (lenis) {
+    lenis.scrollTo(`#${sectionId}`, { offset: 0, duration: 1.4, easing: (t: number) => 1 - Math.pow(1 - t, 4) });
+  } else {
+    document.getElementById(sectionId.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' });
+  }
+}
 
-type AndroidPerfTier = 'high' | 'mid' | 'low';
+const PIN_MULTIPLIER = 5.3;
 
 type AndroidProfile = {
   fps: number;
@@ -19,73 +29,17 @@ type AndroidProfile = {
   scrub: number;
 };
 
-type NavigatorWithPerf = Navigator & {
-  deviceMemory?: number;
-  connection?: {
-    saveData?: boolean;
-  };
-};
-
-type VideoWithRVFC = HTMLVideoElement & {
-  requestVideoFrameCallback?: (
-    callback: (now: number, metadata: VideoFrameCallbackMetadata) => void,
-  ) => number;
-  cancelVideoFrameCallback?: (handle: number) => void;
-};
-
 const ANDROID_PROFILES: Record<AndroidPerfTier, AndroidProfile> = {
-  high: {
-    fps: 30,
-    frameStep: 1 / 24,
-    smoothing: 0.26,
-    scrub: 0.75,
-  },
-  mid: {
-    fps: 24,
-    frameStep: 1 / 20,
-    smoothing: 0.22,
-    scrub: 0.95,
-  },
-  low: {
-    fps: 20,
-    frameStep: 1 / 16,
-    smoothing: 0.18,
-    scrub: 1.1,
-  },
+  high: { fps: 30, frameStep: 1 / 24, smoothing: 0.26, scrub: 0.75 },
+  mid: { fps: 24, frameStep: 1 / 20, smoothing: 0.22, scrub: 0.95 },
+  low: { fps: 20, frameStep: 1 / 16, smoothing: 0.18, scrub: 1.1 },
 };
-
-function getAndroidPerfTier(): AndroidPerfTier {
-  if (typeof navigator === 'undefined') return 'mid';
-
-  const nav = navigator as NavigatorWithPerf;
-  const saveData = Boolean(nav.connection?.saveData);
-  const memory = nav.deviceMemory;
-  const cores = nav.hardwareConcurrency ?? 4;
-
-  if (saveData) return 'low';
-
-  if (typeof memory === 'number') {
-    if (memory >= 6 && cores >= 8) return 'high';
-    if (memory <= 3 || cores <= 4) return 'low';
-    return 'mid';
-  }
-
-  if (cores >= 8) return 'high';
-  if (cores <= 4) return 'low';
-  return 'mid';
-}
-
-function goToSection(sectionId: string) {
-  lenisScrollTo(`#${sectionId}`);
-}
 
 export function HeroSequenceSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const stageRef = useRef(0);
-  const lastScrubbedTimeRef = useRef(0);
   const androidTargetTimeRef = useRef(0);
-  const androidSmoothTimeRef = useRef(0);
 
   const [activeStage, setActiveStage] = useState(0);
   const [videoReady, setVideoReady] = useState(false);
@@ -93,34 +47,38 @@ export function HeroSequenceSection() {
   const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
   const androidTier = isAndroid ? getAndroidPerfTier() : null;
   const androidProfile = androidTier ? ANDROID_PROFILES[androidTier] : null;
-  // Keep static fallback only for explicit reduced-motion users.
   const useStaticFallback = prefersReducedMotion;
+
+  // Utilize the extracted hook!
+  useAndroidVideoScrubber({ videoRef, androidProfile, androidTargetTimeRef });
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video || prefersReducedMotion) return;
-    const androidVideo = video as VideoWithRVFC;
 
-    // On mobile, `canplaythrough` may never fire. Use `loadeddata` / `canplay`
-    // so the poster can disappear as soon as frames are seekable.
     const onPlayable = () => {
       setVideoReady(true);
-      lastScrubbedTimeRef.current = 0;
       androidTargetTimeRef.current = 0;
-      androidSmoothTimeRef.current = 0;
       video.pause();
     };
     video.addEventListener('loadeddata', onPlayable);
     video.addEventListener('canplay', onPlayable);
 
-    // On iOS Safari, autoplay (allowed for muted videos) forces the browser
-    // to actually buffer the video — without it, currentTime scrubbing silently fails.
     video.load();
-    video.play().catch(() => {
-      // Autoplay blocked — fall back to load-only (desktop browsers without gesture)
-    });
+    video.play().catch(() => {});
 
-    const trigger = ScrollTrigger.create({
+    return () => {
+      video.removeEventListener('loadeddata', onPlayable);
+      video.removeEventListener('canplay', onPlayable);
+    };
+  }, [prefersReducedMotion]);
+
+  // Modern GSAP + React integration automatically cleans up logic
+  useGSAP(() => {
+    const video = videoRef.current;
+    if (!video || prefersReducedMotion) return;
+
+    ScrollTrigger.create({
       trigger: sectionRef.current,
       start: 'top top',
       end: () => `+=${window.innerHeight * PIN_MULTIPLIER}`,
@@ -128,12 +86,9 @@ export function HeroSequenceSection() {
       pin: true,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
-        // Scrub video currentTime based on scroll progress
         if (video.duration && isFinite(video.duration)) {
           const targetTime = self.progress * video.duration;
 
-          // Android decoders can jitter when seeking every tiny delta.
-          // Keep scroll updates lightweight, then smooth/snap via ticker.
           if (androidProfile) {
             androidTargetTimeRef.current = targetTime;
           } else {
@@ -149,85 +104,12 @@ export function HeroSequenceSection() {
       },
     });
 
-    // Fade in the video once ready
-    if (!prefersReducedMotion) {
-      gsap.fromTo(
-        video,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.4, delay: 0.1 },
-      );
-    }
-
-    let rafId = 0;
-    let rvfcId = 0;
-    let lastSeekTimestamp = 0;
-
-    const seekAndroidFrame = (now: number) => {
-      if (!androidProfile || !video.duration || !isFinite(video.duration)) return;
-
-      const minDeltaMs = 1000 / androidProfile.fps;
-      if (now - lastSeekTimestamp < minDeltaMs) return;
-      lastSeekTimestamp = now;
-
-      const target = androidTargetTimeRef.current;
-      const current = androidSmoothTimeRef.current;
-      const next = current + (target - current) * androidProfile.smoothing;
-      const snappedTime = Math.max(
-        0,
-        Math.min(video.duration, Math.round(next / androidProfile.frameStep) * androidProfile.frameStep),
-      );
-
-      androidSmoothTimeRef.current = next;
-
-      if (Math.abs(snappedTime - lastScrubbedTimeRef.current) >= androidProfile.frameStep * 0.95) {
-        lastScrubbedTimeRef.current = snappedTime;
-        try {
-          const maybeFastSeek = (video as HTMLVideoElement & { fastSeek?: (time: number) => void }).fastSeek;
-          if (typeof maybeFastSeek === 'function') {
-            maybeFastSeek(snappedTime);
-          } else {
-            video.currentTime = snappedTime;
-          }
-        } catch {
-          video.currentTime = snappedTime;
-        }
-      }
-    };
-
-    if (androidProfile) {
-      const runRaf = (time: number) => {
-        seekAndroidFrame(time);
-        rafId = window.requestAnimationFrame(runRaf);
-      };
-
-      const runRvfc = (now: number) => {
-        seekAndroidFrame(now);
-        if (typeof androidVideo.requestVideoFrameCallback === 'function') {
-          rvfcId = androidVideo.requestVideoFrameCallback(runRvfc);
-        }
-      };
-
-      if (typeof androidVideo.requestVideoFrameCallback === 'function') {
-        rvfcId = androidVideo.requestVideoFrameCallback(runRvfc);
-      } else {
-        rafId = window.requestAnimationFrame(runRaf);
-      }
-    }
-
-    return () => {
-      video.removeEventListener('loadeddata', onPlayable);
-      video.removeEventListener('canplay', onPlayable);
-      if (androidProfile) {
-        if (rafId) {
-          window.cancelAnimationFrame(rafId);
-        }
-        if (rvfcId && typeof androidVideo.cancelVideoFrameCallback === 'function') {
-          androidVideo.cancelVideoFrameCallback(rvfcId);
-        }
-      }
-      trigger.kill();
-    };
-  }, [prefersReducedMotion, androidProfile]);
+    gsap.fromTo(
+      video,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.4, delay: 0.1 },
+    );
+  }, { scope: sectionRef, dependencies: [prefersReducedMotion, androidProfile] });
 
   return (
     <section
@@ -245,7 +127,6 @@ export function HeroSequenceSection() {
         />
       ) : (
         <>
-          {/* Static poster — shows instantly while video loads */}
           <img
             src={assetUrl('images/hero-sequence/frame_000_delay-0.041s.webp')}
             alt=""
@@ -256,10 +137,6 @@ export function HeroSequenceSection() {
             loading="eager"
             fetchPriority="high"
           />
-          {/* Scroll-scrubbed video.
-              autoPlay + muted is required on iOS Safari to trigger buffering —
-              without it currentTime scrubbing silently fails. We pause it as
-              soon as canplaythrough fires so GSAP controls the position. */}
           <video
             ref={videoRef}
             className="absolute inset-0 h-full w-full object-cover"
@@ -273,7 +150,6 @@ export function HeroSequenceSection() {
         </>
       )}
 
-      {/* Warm radial accent + dark gradient for text readability */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(242,201,76,0.18),transparent_35%),linear-gradient(180deg,rgba(8,20,40,0.58)_0%,rgba(8,20,40,0.22)_45%,rgba(8,20,40,0.62)_100%)]" />
 
       <div className="relative z-10 mx-auto flex h-full w-full max-w-[1400px] items-center px-6 pb-[calc(env(safe-area-inset-bottom)+6.5rem)] pt-[calc(env(safe-area-inset-top)+4.75rem)] md:px-10 md:pb-0 md:pt-0">

@@ -1,6 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
+import { ReactLenis } from 'lenis/react';
+import type { LenisRef } from 'lenis/react';
 
 import { Header } from './components/Header';
 import { HeroSequenceSection } from './components/HeroSequenceSection';
@@ -15,18 +18,45 @@ import { CredibilitySection } from './components/CredibilitySection';
 import { FinalCTASection } from './components/FinalCTASection';
 import { Footer } from './components/Footer';
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
-import { useSmoothScroll } from './hooks/useSmoothScroll';
 
 function App() {
   const reducedMotion = usePrefersReducedMotion();
+  const lenisRef = useRef<LenisRef>(null);
 
-  // ── Lenis smooth scroll (disabled when user prefers reduced motion) ──
-  useSmoothScroll(!reducedMotion);
+  // Sync Lenis with GSAP's Ticker for perfect scroll sync
+  useEffect(() => {
+    function update(time: number) {
+      if (lenisRef.current?.lenis) {
+        lenisRef.current.lenis.raf(time * 1000);
+      }
+    }
+  
+    gsap.ticker.add(update);
+    gsap.ticker.lagSmoothing(0);
+  
+    return () => {
+      gsap.ticker.remove(update);
+    };
+  }, []);
 
+  // Make globally available strictly for old raw functions
+  useEffect(() => {
+    if (lenisRef.current?.lenis) {
+      (window as any).__lenis = lenisRef.current.lenis;
+      
+      const updateScrollTrigger = () => ScrollTrigger.update();
+      lenisRef.current.lenis.on('scroll', updateScrollTrigger);
+      
+      return () => {
+        if (lenisRef.current?.lenis) {
+          lenisRef.current.lenis.off('scroll', updateScrollTrigger);
+        }
+      };
+    }
+  }, []);
 
   // ── ScrollTrigger refresh after mount (accounts for pinned sections + iOS resize) ──
   useEffect(() => {
-    // Delay lets all components register their ScrollTriggers first
     const id = setTimeout(() => ScrollTrigger.refresh(), 400);
 
     let resizeTimer: ReturnType<typeof setTimeout>;
@@ -75,95 +105,96 @@ function App() {
   }, []);
 
   // ── Global reveal animation system ──
-  useEffect(() => {
-    // Skip all GSAP scroll animations on touch devices (iOS/Android).
-    // gsap.from() sets opacity:0 immediately — if ScrollTrigger misfires on
-    // mobile (common after pinned sections), elements stay permanently hidden.
+  useGSAP(() => {
     const isTouchDevice = navigator.maxTouchPoints > 0;
     if (reducedMotion || isTouchDevice) return;
 
-    const context = gsap.context(() => {
-      // Standard reveal — fade up
-      gsap.utils.toArray<HTMLElement>('[data-animate="reveal"]').forEach((element) => {
-        if (element.dataset.animated === 'true') return;
+    // Standard reveal — fade up
+    gsap.utils.toArray<HTMLElement>('[data-animate="reveal"]').forEach((element) => {
+      if (element.dataset.animated === 'true') return;
 
-        gsap.from(element, {
-          y: 34,
-          opacity: 0,
-          duration: 0.95,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: element,
-            start: 'top 82%',
-          },
-        });
-
-        element.dataset.animated = 'true';
+      gsap.from(element, {
+        y: 34,
+        opacity: 0,
+        duration: 0.95,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: element,
+          start: 'top 82%',
+        },
       });
 
-      // Scale reveal — fade up with scale
-      gsap.utils.toArray<HTMLElement>('[data-animate="scale"]').forEach((element) => {
-        if (element.dataset.animated === 'true') return;
-
-        gsap.from(element, {
-          y: 40,
-          opacity: 0,
-          scale: 0.92,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: element,
-            start: 'top 84%',
-          },
-        });
-
-        element.dataset.animated = 'true';
-      });
-
-      // Slide-in from left
-      gsap.utils.toArray<HTMLElement>('[data-animate="slide-left"]').forEach((element) => {
-        if (element.dataset.animated === 'true') return;
-
-        gsap.from(element, {
-          x: -50,
-          opacity: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: element,
-            start: 'top 82%',
-          },
-        });
-
-        element.dataset.animated = 'true';
-      });
-
-      // Stagger children reveal
-      gsap.utils.toArray<HTMLElement>('[data-animate="stagger"]').forEach((container) => {
-        if (container.dataset.animated === 'true') return;
-
-        const children = container.children;
-        gsap.from(children, {
-          y: 30,
-          opacity: 0,
-          duration: 0.8,
-          stagger: 0.08,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: container,
-            start: 'top 82%',
-          },
-        });
-
-        container.dataset.animated = 'true';
-      });
+      element.dataset.animated = 'true';
     });
 
-    return () => context.revert();
-  }, [reducedMotion]);
+    // Scale reveal — fade up with scale
+    gsap.utils.toArray<HTMLElement>('[data-animate="scale"]').forEach((element) => {
+      if (element.dataset.animated === 'true') return;
+
+      gsap.from(element, {
+        y: 40,
+        opacity: 0,
+        scale: 0.92,
+        duration: 1,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: element,
+          start: 'top 84%',
+        },
+      });
+
+      element.dataset.animated = 'true';
+    });
+
+    // Slide-in from left
+    gsap.utils.toArray<HTMLElement>('[data-animate="slide-left"]').forEach((element) => {
+      if (element.dataset.animated === 'true') return;
+
+      gsap.from(element, {
+        x: -50,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: element,
+          start: 'top 82%',
+        },
+      });
+
+      element.dataset.animated = 'true';
+    });
+
+    // Stagger children reveal
+    gsap.utils.toArray<HTMLElement>('[data-animate="stagger"]').forEach((container) => {
+      if (container.dataset.animated === 'true') return;
+
+      const children = container.children;
+      gsap.from(children, {
+        y: 30,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.08,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: container,
+          start: 'top 82%',
+        },
+      });
+
+      container.dataset.animated = 'true';
+    });
+  }, { dependencies: [reducedMotion] });
 
   return (
-    <>
+    <ReactLenis root ref={lenisRef} autoRaf={false} options={{
+      duration: 0.8,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1.8,
+      touchMultiplier: (/Android/i.test(navigator.userAgent)) ? 1.2 : 2,
+    }}>
       <Header />
       <main>
         <HeroSequenceSection />
@@ -178,7 +209,7 @@ function App() {
         <FinalCTASection />
       </main>
       <Footer />
-    </>
+    </ReactLenis>
   );
 }
 

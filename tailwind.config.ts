@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import plugin from 'tailwindcss/plugin';
 
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
@@ -47,5 +48,37 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(function ({ addUtilities }) {
+      addUtilities({
+        '[data-section-blend]::before': {
+          content: '""',
+          position: 'absolute',
+          top: '-1px',
+          left: '0',
+          right: '0',
+          height: '72px',
+          pointerEvents: 'none',
+          zIndex: '1',
+        },
+        '[data-section-blend="white-to-dark"]::before': { background: 'linear-gradient(to bottom, #ffffff 0%, transparent 70%)' },
+        '[data-section-blend="dark-to-light"]::before': { background: 'linear-gradient(to bottom, #031a35 0%, transparent 70%)' },
+        '[data-section-blend="offwhite-to-dark"]::before': { background: 'linear-gradient(to bottom, #eef4f9 0%, transparent 70%)' },
+
+        '[data-section-blend-bottom]::after': {
+          content: '""',
+          position: 'absolute',
+          bottom: '-1px',
+          left: '0',
+          right: '0',
+          height: '72px',
+          pointerEvents: 'none',
+          zIndex: '1',
+        },
+        '[data-section-blend-bottom="dark-to-white"]::after': { background: 'linear-gradient(to top, #ffffff 0%, transparent 70%)' },
+        '[data-section-blend-bottom="dark-to-offwhite"]::after': { background: 'linear-gradient(to top, #f5f7f4 0%, transparent 70%)' },
+        '[data-section-blend-bottom="dark-to-eef"]::after': { background: 'linear-gradient(to top, #eef4f9 0%, transparent 70%)' },
+      });
+    }),
+  ],
 } satisfies Config;

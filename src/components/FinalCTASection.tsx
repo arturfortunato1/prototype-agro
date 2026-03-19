@@ -4,7 +4,7 @@ import { gsap } from 'gsap';
 import { CTAButton } from './CTAButton';
 import { TextReveal } from './TextReveal';
 import { assetUrl } from '../utils';
-import { lenisScrollTo } from '../hooks/useSmoothScroll';
+import { lenisScrollTo } from '../utils';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 function goToSection(sectionId: string) {

@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { CTAButton } from './CTAButton';
 import { navLinks } from '../data/content';
 import { assetUrl } from '../utils';
-import { lenisScrollTo } from '../hooks/useSmoothScroll';
+import { lenisScrollTo } from '../utils';
 
 const LOGO_SRC = assetUrl('images/logo/Logo-novo.png');
 
