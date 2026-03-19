@@ -22,21 +22,21 @@ export function HeroSequenceSection() {
   const [activeStage, setActiveStage] = useState(0);
   const [videoReady, setVideoReady] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
-  // On touch devices ScrollTrigger pin + Lenis + video scrubbing all break on
-  // iOS Safari. Fall back to a clean static hero (stage 0, no pin, no video).
-  const useStaticFallback = prefersReducedMotion || navigator.maxTouchPoints > 0;
+  // Keep static fallback only for explicit reduced-motion users.
+  const useStaticFallback = prefersReducedMotion;
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || useStaticFallback) return;
+    if (!video || prefersReducedMotion) return;
 
-    // Once enough data is buffered, mark as ready and pause so GSAP
-    // has full control via currentTime scrubbing.
-    const onCanPlay = () => {
+    // On mobile, `canplaythrough` may never fire. Use `loadeddata` / `canplay`
+    // so the poster can disappear as soon as frames are seekable.
+    const onPlayable = () => {
       setVideoReady(true);
       video.pause();
     };
-    video.addEventListener('canplaythrough', onCanPlay);
+    video.addEventListener('loadeddata', onPlayable);
+    video.addEventListener('canplay', onPlayable);
 
     // On iOS Safari, autoplay (allowed for muted videos) forces the browser
     // to actually buffer the video — without it, currentTime scrubbing silently fails.
@@ -75,35 +75,10 @@ export function HeroSequenceSection() {
     }
 
     return () => {
-      video.removeEventListener('canplaythrough', onCanPlay);
+      video.removeEventListener('loadeddata', onPlayable);
+      video.removeEventListener('canplay', onPlayable);
       trigger.kill();
     };
-  }, [prefersReducedMotion]);
-
-  /* ── Touch-only: pin + stage transitions WITHOUT video ──
-     The desktop useEffect above is skipped on touch (useStaticFallback=true).
-     This effect adds back just the pin and text-stage cycling so the hero
-     still scrolls through 3 stages on iOS — only video scrubbing is removed. */
-  useEffect(() => {
-    const isTouchDevice = navigator.maxTouchPoints > 0;
-    if (!isTouchDevice || prefersReducedMotion || !sectionRef.current) return;
-
-    const trigger = ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start: 'top top',
-      end: () => `+=${window.innerHeight * PIN_MULTIPLIER}`,
-      scrub: 0.5,
-      pin: true,
-      onUpdate: (self) => {
-        const nextStage = self.progress < 0.36 ? 0 : self.progress < 0.74 ? 1 : 2;
-        if (nextStage !== stageRef.current) {
-          stageRef.current = nextStage;
-          setActiveStage(nextStage);
-        }
-      },
-    });
-
-    return () => trigger.kill();
   }, [prefersReducedMotion]);
 
   return (
