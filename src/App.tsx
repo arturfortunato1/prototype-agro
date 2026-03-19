@@ -21,6 +21,8 @@ import { FinalCTASection } from './components/FinalCTASection';
 import { Footer } from './components/Footer';
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
 
+ScrollTrigger.config({ ignoreMobileResize: true });
+
 function App() {
   const reducedMotion = usePrefersReducedMotion();
   const lenisRef = useRef<LenisRef>(null);
@@ -69,20 +71,10 @@ function App() {
   }, []);
 
   useEffect(() => {
+    // Initial load refresh insurance
     const id = setTimeout(() => ScrollTrigger.refresh(), 400);
 
-    let resizeTimer: ReturnType<typeof setTimeout>;
-    const onResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => ScrollTrigger.refresh(), 200);
-    };
-    window.addEventListener('resize', onResize, { passive: true });
-
-    return () => {
-      clearTimeout(id);
-      clearTimeout(resizeTimer);
-      window.removeEventListener('resize', onResize);
-    };
+    return () => clearTimeout(id);
   }, []);
 
   useEffect(() => {

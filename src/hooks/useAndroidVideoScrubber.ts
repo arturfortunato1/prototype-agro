@@ -7,11 +7,7 @@ type AndroidProfile = {
   scrub: number;
 };
 
-type VideoWithRVFC = HTMLVideoElement & {
-  requestVideoFrameCallback?: (
-    callback: (now: number, metadata: VideoFrameCallbackMetadata) => void,
-  ) => number;
-  cancelVideoFrameCallback?: (handle: number) => void;
+type VideoWithFastSeek = HTMLVideoElement & {
   fastSeek?: (time: number) => void;
 };
 
@@ -30,22 +26,32 @@ export function useAndroidVideoScrubber({
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !androidProfile) return;
-    const androidVideo = video as VideoWithRVFC;
+    const androidVideo = video as VideoWithFastSeek;
 
     let rafId = 0;
-    let rvfcId = 0;
     let lastSeekTimestamp = 0;
 
     const seekAndroidFrame = (now: number) => {
-      if (!androidProfile || !video.duration || !isFinite(video.duration)) return;
-
+      // Throttle based on device FPS tier
       const minDeltaMs = 1000 / androidProfile.fps;
-      if (now - lastSeekTimestamp < minDeltaMs) return;
+      if (now - lastSeekTimestamp < minDeltaMs) {
+        rafId = window.requestAnimationFrame(seekAndroidFrame);
+        return;
+      }
       lastSeekTimestamp = now;
+
+      if (!video.duration || !isFinite(video.duration)) {
+        rafId = window.requestAnimationFrame(seekAndroidFrame);
+        return;
+      }
 
       const target = androidTargetTimeRef.current;
       const current = androidSmoothTimeRef.current;
+      
+      // Interpolate smoothly toward the target
       const next = current + (target - current) * androidProfile.smoothing;
+      
+      // Snap strictly to calculated frame steps, to limit hardware decoder overload
       const snappedTime = Math.max(
         0,
         Math.min(video.duration, Math.round(next / androidProfile.frameStep) * androidProfile.frameStep),
@@ -53,6 +59,7 @@ export function useAndroidVideoScrubber({
 
       androidSmoothTimeRef.current = next;
 
+      // Only aggressively seek if the Delta crosses the minimum frame step threshold to prevent stall dropping
       if (Math.abs(snappedTime - lastScrubbedTimeRef.current) >= androidProfile.frameStep * 0.95) {
         lastScrubbedTimeRef.current = snappedTime;
         try {
@@ -65,32 +72,17 @@ export function useAndroidVideoScrubber({
           video.currentTime = snappedTime;
         }
       }
+
+      // Loop permanently independent of the Video playback state!
+      rafId = window.requestAnimationFrame(seekAndroidFrame);
     };
 
-    const runRaf = (time: number) => {
-      seekAndroidFrame(time);
-      rafId = window.requestAnimationFrame(runRaf);
-    };
-
-    const runRvfc = (now: number) => {
-      seekAndroidFrame(now);
-      if (typeof androidVideo.requestVideoFrameCallback === 'function') {
-        rvfcId = androidVideo.requestVideoFrameCallback(runRvfc);
-      }
-    };
-
-    if (typeof androidVideo.requestVideoFrameCallback === 'function') {
-      rvfcId = androidVideo.requestVideoFrameCallback(runRvfc);
-    } else {
-      rafId = window.requestAnimationFrame(runRaf);
-    }
+    // Kickstart the perpetual loop
+    rafId = window.requestAnimationFrame(seekAndroidFrame);
 
     return () => {
       if (rafId) {
         window.cancelAnimationFrame(rafId);
-      }
-      if (rvfcId && typeof androidVideo.cancelVideoFrameCallback === 'function') {
-        androidVideo.cancelVideoFrameCallback(rvfcId);
       }
     };
   }, [androidProfile, videoRef, androidTargetTimeRef]);
