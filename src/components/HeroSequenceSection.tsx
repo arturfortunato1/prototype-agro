@@ -22,20 +22,26 @@ export function HeroSequenceSection() {
   const [activeStage, setActiveStage] = useState(0);
   const [videoReady, setVideoReady] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
-  // iOS Safari doesn't buffer video for currentTime scrubbing — use static fallback
-  const isTouchDevice = navigator.maxTouchPoints > 0;
-  const useStaticFallback = prefersReducedMotion || isTouchDevice;
+  const useStaticFallback = prefersReducedMotion;
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video || useStaticFallback) return;
 
-    // Once enough data is buffered, mark as ready
-    const onCanPlay = () => setVideoReady(true);
+    // Once enough data is buffered, mark as ready and pause so GSAP
+    // has full control via currentTime scrubbing.
+    const onCanPlay = () => {
+      setVideoReady(true);
+      video.pause();
+    };
     video.addEventListener('canplaythrough', onCanPlay);
 
-    // Ensure the video is loaded and paused at frame 0
+    // On iOS Safari, autoplay (allowed for muted videos) forces the browser
+    // to actually buffer the video — without it, currentTime scrubbing silently fails.
     video.load();
+    video.play().catch(() => {
+      // Autoplay blocked — fall back to load-only (desktop browsers without gesture)
+    });
 
     const trigger = ScrollTrigger.create({
       trigger: sectionRef.current,
@@ -99,12 +105,16 @@ export function HeroSequenceSection() {
             loading="eager"
             fetchPriority="high"
           />
-          {/* Scroll-scrubbed video — replaces 115 individual images with one 4MB file */}
+          {/* Scroll-scrubbed video.
+              autoPlay + muted is required on iOS Safari to trigger buffering —
+              without it currentTime scrubbing silently fails. We pause it as
+              soon as canplaythrough fires so GSAP controls the position. */}
           <video
             ref={videoRef}
             className="absolute inset-0 h-full w-full object-cover"
             src={assetUrl('images/hero-sequence.mp4')}
             muted
+            autoPlay
             playsInline
             preload="auto"
             aria-hidden="true"
