@@ -9,7 +9,8 @@ import { lenisScrollTo } from '../hooks/useSmoothScroll';
 import { assetUrl } from '../utils';
 
 const PIN_MULTIPLIER = 5.3;
-const ANDROID_FRAME_STEP = 1 / 24;
+const ANDROID_FRAME_STEP = 1 / 20;
+const ANDROID_SMOOTHING = 0.22;
 
 function goToSection(sectionId: string) {
   lenisScrollTo(`#${sectionId}`);
@@ -58,7 +59,7 @@ export function HeroSequenceSection() {
       trigger: sectionRef.current,
       start: 'top top',
       end: () => `+=${window.innerHeight * PIN_MULTIPLIER}`,
-      scrub: isAndroid ? 0.8 : 0.5,
+      scrub: isAndroid ? 1 : 0.5,
       pin: true,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
@@ -97,7 +98,7 @@ export function HeroSequenceSection() {
 
       const target = androidTargetTimeRef.current;
       const current = androidSmoothTimeRef.current;
-      const next = current + (target - current) * 0.35;
+      const next = current + (target - current) * ANDROID_SMOOTHING;
       const snappedTime = Math.max(
         0,
         Math.min(video.duration, Math.round(next / ANDROID_FRAME_STEP) * ANDROID_FRAME_STEP),
@@ -105,7 +106,7 @@ export function HeroSequenceSection() {
 
       androidSmoothTimeRef.current = next;
 
-      if (Math.abs(snappedTime - lastScrubbedTimeRef.current) >= ANDROID_FRAME_STEP * 0.95) {
+      if (Math.abs(snappedTime - lastScrubbedTimeRef.current) >= ANDROID_FRAME_STEP * 1.4) {
         lastScrubbedTimeRef.current = snappedTime;
         try {
           const maybeFastSeek = (video as HTMLVideoElement & { fastSeek?: (time: number) => void }).fastSeek;
