@@ -22,7 +22,9 @@ export function HeroSequenceSection() {
   const [activeStage, setActiveStage] = useState(0);
   const [videoReady, setVideoReady] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
-  const useStaticFallback = prefersReducedMotion;
+  // On touch devices ScrollTrigger pin + Lenis + video scrubbing all break on
+  // iOS Safari. Fall back to a clean static hero (stage 0, no pin, no video).
+  const useStaticFallback = prefersReducedMotion || navigator.maxTouchPoints > 0;
 
   useEffect(() => {
     const video = videoRef.current;
@@ -76,6 +78,32 @@ export function HeroSequenceSection() {
       video.removeEventListener('canplaythrough', onCanPlay);
       trigger.kill();
     };
+  }, [prefersReducedMotion]);
+
+  /* ── Touch-only: pin + stage transitions WITHOUT video ──
+     The desktop useEffect above is skipped on touch (useStaticFallback=true).
+     This effect adds back just the pin and text-stage cycling so the hero
+     still scrolls through 3 stages on iOS — only video scrubbing is removed. */
+  useEffect(() => {
+    const isTouchDevice = navigator.maxTouchPoints > 0;
+    if (!isTouchDevice || prefersReducedMotion || !sectionRef.current) return;
+
+    const trigger = ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start: 'top top',
+      end: () => `+=${window.innerHeight * PIN_MULTIPLIER}`,
+      scrub: 0.5,
+      pin: true,
+      onUpdate: (self) => {
+        const nextStage = self.progress < 0.36 ? 0 : self.progress < 0.74 ? 1 : 2;
+        if (nextStage !== stageRef.current) {
+          stageRef.current = nextStage;
+          setActiveStage(nextStage);
+        }
+      },
+    });
+
+    return () => trigger.kill();
   }, [prefersReducedMotion]);
 
   return (
